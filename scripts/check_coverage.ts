@@ -76,5 +76,5 @@ if (!overallCoverage) {
   Deno.exit(1);
 }
 
-console.log("✅ All coverage thresholds met");
+console.log("🎉 All coverage thresholds met");
 Deno.exit(0);
