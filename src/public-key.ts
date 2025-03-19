@@ -174,7 +174,7 @@ export class PublicKey {
       this.y.toString();
 
     // TODO refactor to use SHA-256 (de forma compativel com web)
-    return publicKeyString
+    return publicKeyString;
     // Calcula o hash SHA-256 da string
     // const hash = crypto
     //   .createHash("sha256")
