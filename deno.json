@@ -26,6 +26,8 @@
   "publish": {
     "include": [
       "src",
+      "mod.ts",
+      "utils.ts",
       "LICENSE",
       "README.md"
     ],
