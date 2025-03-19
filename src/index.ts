@@ -1,6 +1,6 @@
-export type { ChallengeGeneratorFn } from "./types.ts";
+export type { ChallengeGeneratorByCommitFn } from "./types.ts";
 export type { DLogProofJSON } from "./d-log-proof.ts";
-export type { KeyPairJSON } from "./key-par.ts";
+export type { KeyPairJSON } from "./key-pair.ts";
 export type { PublicKeyJSON } from "./public-key.ts";
 export type { SecretKeyJSON } from "./secret-key.ts";
 export type { ZKProofJSON } from "./zk-proof.ts";
@@ -10,7 +10,7 @@ export { Ciphertext } from "./ciphertext.ts";
 export { Commitment } from "./commitment.ts";
 export { CryptoSystem } from "./cryto-system.ts";
 export { DLogProof } from "./d-log-proof.ts";
-export { KeyPair } from "./key-par.ts";
+export { KeyPair } from "./key-pair.ts";
 export { PublicKey } from "./public-key.ts";
 export { SecretKey } from "./secret-key.ts";
 export { ZKProof } from "./zk-proof.ts";

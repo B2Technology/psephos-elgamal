@@ -1,5 +1,5 @@
 import type { Commitment } from "../commitment.ts";
-import type { ChallengeGeneratorFn } from "../types.ts";
+import type { ChallengeGeneratorByCommitFn } from "../types.ts";
 import { BigInteger } from "./big-Integer.ts";
 
 // TODO revisar e testar todos estes metodos
@@ -9,7 +9,7 @@ import { BigInteger } from "./big-Integer.ts";
  * @returns String hexadecimal dos bytes aleatórios
  * @param length
  */
-function getRandomBytes(length: number): Promise<Uint8Array> {
+export function getRandomBytes(length: number): Promise<Uint8Array> {
   const bytes = new Uint8Array(length);
   globalThis.crypto.getRandomValues(bytes);
   return Promise.resolve(bytes);
@@ -76,7 +76,7 @@ export function disjunctiveChallengeGenerator(
   return sha1ToBigInt(stringToHash);
 }
 
-export const fiatshamirChallengeGenerator: ChallengeGeneratorFn = (
+export const fiatshamirChallengeGenerator: ChallengeGeneratorByCommitFn = (
   commitment: Commitment,
 ): Promise<BigInteger> => {
   return disjunctiveChallengeGenerator([commitment]);
@@ -86,9 +86,15 @@ export const fiatshamirChallengeGenerator: ChallengeGeneratorFn = (
 export function DLogChallengeGenerator(
   commitment: string,
 ): Promise<BigInteger> {
-  const stringToHash = String(commitment);
-  return sha1ToBigInt(stringToHash);
+  return sha1ToBigInt(String(commitment));
 }
+
+// export const simpleChallengeGeneratorFn: ChallengeGeneratorByBigIntFn = (
+//   commitment: BigInteger,
+// ): Promise<BigInteger> => {
+//   //
+//   return Promise.resolve(commitment)
+// };
 
 // TODO ver para unificar com randomMpzLt
 export function getRandomBigInt(bits: number): Promise<BigInteger> {

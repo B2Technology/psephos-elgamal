@@ -1,5 +1,5 @@
 import { BigInteger, getRandomBigInt, isProbablyPrime } from "./utils/index.ts";
-import { KeyPair } from "./key-par.ts";
+import { KeyPair } from "./key-pair.ts";
 
 export type CryptoSystemJSON = {
   p: string;
@@ -80,13 +80,12 @@ export class CryptoSystem {
     );
   }
 
-  generateKeyPair(y?: string | BigInteger): Promise<KeyPair> {
-    const _y = y ? new BigInteger(y.toString()) : undefined;
-    return KeyPair.create(this.p, this.q, this.g, _y);
+  generateKeyPair(): Promise<KeyPair> {
+    return KeyPair.create(this.p, this.q, this.g);
   }
 
   generateKeyPairWithPrivateKey(x: string | BigInteger): KeyPair {
-    const sk_x = new BigInteger(x.toString());
+    const sk_x = new BigInteger(x);
     return KeyPair.createWithPrivateKey(this.p, this.q, this.g, sk_x);
   }
 

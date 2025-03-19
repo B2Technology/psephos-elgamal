@@ -1,6 +1,10 @@
 import type { BigInteger } from "./utils/index.ts";
 import type { Commitment } from "./commitment.ts";
 
-export type ChallengeGeneratorFn = (
+export type ChallengeGeneratorByCommitFn = (
   commitment: Commitment,
+) => Promise<BigInteger>;
+
+export type ChallengeGeneratorByBigIntFn = (
+  commitment: BigInteger,
 ) => Promise<BigInteger>;

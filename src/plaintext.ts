@@ -24,6 +24,10 @@ export class Plaintext {
     return this.m.toString();
   }
 
+  valueOf(): BigInteger {
+    return this.m;
+  }
+
   async compareToString(s: string): Promise<boolean> {
     const c = await sha1ToBigInt(s);
     return c.equals(this.m);

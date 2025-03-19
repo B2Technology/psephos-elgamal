@@ -1,4 +1,4 @@
-import type { ChallengeGeneratorFn } from "./types.ts";
+import type { ChallengeGeneratorByCommitFn } from "./types.ts";
 import type { Plaintext } from "./plaintext.ts";
 import type { PublicKeyJSON } from "./public-key.ts";
 import { BigInteger, randomMpzLt } from "./utils/index.ts";
@@ -124,7 +124,7 @@ export class Ciphertext {
    */
   async generateEncryptionProof(
     randomness: BigInteger,
-    challengeGenerator: ChallengeGeneratorFn,
+    challengeGenerator: ChallengeGeneratorByCommitFn,
   ): Promise<ZKProof> {
     const w = await randomMpzLt(this.pk.q);
 

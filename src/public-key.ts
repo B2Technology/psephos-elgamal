@@ -1,3 +1,4 @@
+import type { ChallengeGeneratorByBigIntFn } from "./types.ts";
 import type { Plaintext } from "./plaintext.ts";
 import type { DLogProof } from "./d-log-proof.ts";
 import type { ZKProof } from "./zk-proof.ts";
@@ -129,22 +130,20 @@ export class PublicKey {
     );
   }
 
-  // TODO add test (not covered)
   /**
    * verify the proof of knowledge of the secret key
    * g^response = commitment * y^challenge
    */
-  verifySkProof(
+  async verifySkProof(
     dlogProof: DLogProof,
-    challengeGenerator: (commitment: BigInteger) => BigInteger,
-  ): boolean {
+    challengeGenerator: ChallengeGeneratorByBigIntFn,
+  ): Promise<boolean> {
     const leftSide = this.g.modPow(dlogProof.response, this.p);
     const rightSide = dlogProof.commitment
       .multiply(this.y.modPow(dlogProof.challenge, this.p))
       .mod(this.p);
-    const expectedChallenge = challengeGenerator(dlogProof.commitment).mod(
-      this.q,
-    );
+    const g = await challengeGenerator(dlogProof.commitment);
+    const expectedChallenge = g.mod(this.q);
 
     return (
       leftSide.equals(rightSide) &&

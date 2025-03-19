@@ -1,4 +1,7 @@
-import type { ChallengeGeneratorFn } from "./types.ts";
+import type {
+  ChallengeGeneratorByBigIntFn,
+  ChallengeGeneratorByCommitFn,
+} from "./types.ts";
 import type { PublicKeyJSON } from "./public-key.ts";
 import type { Ciphertext } from "./ciphertext.ts";
 import type { ZKProofJSON } from "./zk-proof.ts";
@@ -55,7 +58,7 @@ export class SecretKey {
    */
   async decryptionFactorAndProof(
     ciphertext: Ciphertext,
-    challengeGenerator: ChallengeGeneratorFn | null = null,
+    challengeGenerator: ChallengeGeneratorByCommitFn | null = null,
   ): Promise<[BigInteger, ZKProof]> {
     if (!challengeGenerator) {
       challengeGenerator = fiatshamirChallengeGenerator;
@@ -155,11 +158,12 @@ export class SecretKey {
    * Prover computes response = w + x*challenge mod q, where x is the secret key.
    */
   async proveSk(
-    challengeGenerator: (commitment: BigInteger) => BigInteger,
+    challengeGenerator: ChallengeGeneratorByBigIntFn,
   ): Promise<DLogProof> {
     const w = await randomMpzLt(this.pk.q);
     const commitment = this.pk.g.modPow(w, this.pk.p);
-    const challenge = challengeGenerator(commitment).mod(this.pk.q);
+    const g = await challengeGenerator(commitment);
+    const challenge = g.mod(this.pk.q);
     const response = w.add(this.x.multiply(challenge)).mod(this.pk.q);
 
     return new DLogProof(commitment, challenge, response);
