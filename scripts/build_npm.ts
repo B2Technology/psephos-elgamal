@@ -66,7 +66,7 @@ await build({
   },
   test,
   typeCheck: "both",
-  async postBuild() {
+  postBuild() {
     Deno.copyFileSync("LICENSE", "dist/LICENSE");
     Deno.copyFileSync("README.md", "dist/README.md");
 
