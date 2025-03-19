@@ -6,23 +6,26 @@ export class Plaintext {
     public readonly m: BigInteger,
   ) {}
 
-  static fromString(m: string): Plaintext {
-    return new Plaintext(sha1ToBigInt(m));
+  static async fromString(m: string): Promise<Plaintext> {
+    return new Plaintext(await sha1ToBigInt(m));
   }
 
   static fromBigInteger(m: BigInteger): Plaintext {
     return new Plaintext(m);
   }
 
-  static fromStrings(list: string[]): Plaintext[] {
-    return list.map((m) => new Plaintext(sha1ToBigInt(m)));
+  static fromStrings(list: string[]): Promise<Plaintext[]> {
+    return Promise.all(
+      list.map(async (m) => new Plaintext(await sha1ToBigInt(m))),
+    );
   }
 
   toString(): string {
     return this.m.toString();
   }
 
-  compareToString(s: string): boolean {
-    return sha1ToBigInt(s).equals(this.m);
+  async compareToString(s: string): Promise<boolean> {
+    const c = await sha1ToBigInt(s);
+    return c.equals(this.m);
   }
 }

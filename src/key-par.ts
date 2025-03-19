@@ -15,13 +15,13 @@ export class KeyPair {
     public readonly sk: SecretKey,
   ) {}
 
-  static create(
+  static async create(
     p: BigInteger,
     q: BigInteger,
     g: BigInteger,
     y?: BigInteger,
-  ): KeyPair {
-    const sk_x = randomMpzLt(q);
+  ): Promise<KeyPair> {
+    const sk_x = await randomMpzLt(q);
     const pk_y = y ? y : g.modPow(sk_x, p);
 
     const publicKey = new PublicKey(p, q, g, pk_y);
@@ -46,7 +46,7 @@ export class KeyPair {
 
   static fromData(
     data: { g: string; p: string; q: string; y?: string },
-  ): KeyPair {
+  ): Promise<KeyPair> {
     return KeyPair.create(
       new BigInteger(data.p),
       new BigInteger(data.q),

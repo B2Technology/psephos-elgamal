@@ -1,4 +1,3 @@
-import crypto from "node:crypto";
 import type { Plaintext } from "./plaintext.ts";
 import type { DLogProof } from "./d-log-proof.ts";
 import type { ZKProof } from "./zk-proof.ts";
@@ -71,8 +70,10 @@ export class PublicKey {
   /**
    * Encrypt a plaintext and return the randomness just generated and used.
    */
-  encryptReturnR(plaintext: Plaintext): [Ciphertext, BigInteger] {
-    const r = randomMpzLt(this.q);
+  async encryptReturnR(
+    plaintext: Plaintext,
+  ): Promise<[Ciphertext, BigInteger]> {
+    const r = await randomMpzLt(this.q);
     const ciphertext = this.encryptWithR(plaintext, r);
     return [ciphertext, r];
   }
@@ -80,15 +81,16 @@ export class PublicKey {
   /**
    * Encrypt a plaintext, obscure the randomness.
    */
-  encrypt(plaintext: Plaintext): Ciphertext {
-    return this.encryptReturnR(plaintext)[0];
+  async encrypt(plaintext: Plaintext): Promise<Ciphertext> {
+    const c = await this.encryptReturnR(plaintext);
+    return c[0];
   }
 
   /**
    * Encrypt a plaintext, obscure the randomness and generate a proof of knowledge of the randomness
    */
-  generateProof(plaintext: Plaintext): ZKProof {
-    const [ciphertext, r] = this.encryptReturnR(plaintext);
+  async generateProof(plaintext: Plaintext): Promise<ZKProof> {
+    const [ciphertext, r] = await this.encryptReturnR(plaintext);
 
     return ciphertext.generateEncryptionProof(
       r,
@@ -171,18 +173,20 @@ export class PublicKey {
       this.g.toString() +
       this.y.toString();
 
+    // TODO refactor to use SHA-256 (de forma compativel com web)
+    return publicKeyString
     // Calcula o hash SHA-256 da string
-    const hash = crypto
-      .createHash("sha256")
-      .update(publicKeyString, "utf-8")
-      .digest();
-
-    // Converte para formato de fingerprint (primeiros 20 bytes em formato hexadecimal com separadores)
-    const fingerprintBytes = hash.slice(0, 20);
-    const fingerprint = Array.from(fingerprintBytes)
-      .map((byte) => byte.toString(16).padStart(2, "0").toUpperCase())
-      .join(":");
-
-    return fingerprint;
+    // const hash = crypto
+    //   .createHash("sha256")
+    //   .update(publicKeyString, "utf-8")
+    //   .digest();
+    //
+    // // Converte para formato de fingerprint (primeiros 20 bytes em formato hexadecimal com separadores)
+    // const fingerprintBytes = hash.slice(0, 20);
+    // const fingerprint = Array.from(fingerprintBytes)
+    //   .map((byte) => byte.toString(16).padStart(2, "0").toUpperCase())
+    //   .join(":");
+    //
+    // return fingerprint;
   }
 }

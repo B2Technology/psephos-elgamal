@@ -29,22 +29,22 @@ export class ZKProof {
    * generate a DDH tuple proof, where challenge generator is
    * almost certainly EG_fiatshamir_challenge_generator
    */
-  static generate(
+  static async generate(
     littleG: BigInteger,
     littleH: BigInteger,
     x: BigInteger,
     p: BigInteger,
     q: BigInteger,
     challengeGenerator: ChallengeGeneratorFn,
-  ): ZKProof {
-    const w = randomMpzLt(q);
+  ): Promise<ZKProof> {
+    const w = await randomMpzLt(q);
 
     // # compute A = little_g^w, B=little_h^w
     const c_A = littleG.modPow(w, p);
     const c_B = littleH.modPow(w, p);
 
     const commitment = new Commitment(c_A, c_B);
-    const challenge = challengeGenerator(commitment);
+    const challenge = await challengeGenerator(commitment);
     const response = w.add(x.multiply(challenge)).mod(q);
 
     return new ZKProof(commitment, challenge, response);
@@ -54,7 +54,7 @@ export class ZKProof {
   /**
    * Verify a DH tuple proof
    */
-  verify(
+  async verify(
     littleG: BigInteger,
     littleH: BigInteger,
     bigG: BigInteger,
@@ -62,7 +62,7 @@ export class ZKProof {
     p: BigInteger,
     _q: BigInteger,
     challengeGenerator: ChallengeGeneratorFn | null = null,
-  ): boolean {
+  ): Promise<boolean> {
     // # check that little_g^response = A * big_g^challenge
     const firstCheck = littleG
       .modPow(this.response, p)
@@ -80,7 +80,9 @@ export class ZKProof {
     // # check the challenge?
     let thirdCheck = true;
     if (challengeGenerator) {
-      thirdCheck = this.challenge.equals(challengeGenerator(this.commitment));
+      thirdCheck = this.challenge.equals(
+        await challengeGenerator(this.commitment),
+      );
     }
 
     return firstCheck && secondCheck && thirdCheck;

@@ -29,8 +29,8 @@ export class SecretKey {
   ) {}
 
   // TODO testar
-  static createFromPublicKey(pk: PublicKey): SecretKey {
-    const x = randomMpzLt(pk.q);
+  static async createFromPublicKey(pk: PublicKey): Promise<SecretKey> {
+    const x = await randomMpzLt(pk.q);
     return new SecretKey(x, pk);
   }
 
@@ -53,16 +53,16 @@ export class SecretKey {
    * challenge generator is almost certainly
    * EG_fiatshamir_challenge_generator
    */
-  decryptionFactorAndProof(
+  async decryptionFactorAndProof(
     ciphertext: Ciphertext,
     challengeGenerator: ChallengeGeneratorFn | null = null,
-  ): [BigInteger, ZKProof] {
+  ): Promise<[BigInteger, ZKProof]> {
     if (!challengeGenerator) {
       challengeGenerator = fiatshamirChallengeGenerator;
     }
 
     const decFactor = this.decryptionFactor(ciphertext);
-    const proof = ZKProof.generate(
+    const proof = await ZKProof.generate(
       this.pk.g,
       ciphertext.alpha,
       this.x,
@@ -118,7 +118,9 @@ export class SecretKey {
    * Verifier will check that g^t = a * y^c
    * and alpha^t = b * beta/m ^ c
    */
-  proveDecryption(ciphertext: Ciphertext): [BigInteger, ZKProofJSON] {
+  async proveDecryption(
+    ciphertext: Ciphertext,
+  ): Promise<[BigInteger, ZKProofJSON]> {
     const m = ciphertext.alpha
       .modPow(this.x, this.pk.p)
       .modInverse(this.pk.p)
@@ -129,11 +131,11 @@ export class SecretKey {
     //   .multiply(m.modInverse(this.pk.p))
     //   .mod(this.pk.p);
 
-    const w = randomMpzLt(this.pk.q);
+    const w = await randomMpzLt(this.pk.q);
     const a = this.pk.g.modPow(w, this.pk.p);
     const b = ciphertext.alpha.modPow(w, this.pk.p);
 
-    const c = sha1ToBigInt(`${a},${b}`);
+    const c = await sha1ToBigInt(`${a},${b}`);
     const t = w.add(this.x.multiply(c)).mod(this.pk.q);
 
     const result: ZKProofJSON = {
@@ -152,10 +154,10 @@ export class SecretKey {
    * Verifier provides challenge modulo q.
    * Prover computes response = w + x*challenge mod q, where x is the secret key.
    */
-  proveSk(
+  async proveSk(
     challengeGenerator: (commitment: BigInteger) => BigInteger,
-  ): DLogProof {
-    const w = randomMpzLt(this.pk.q);
+  ): Promise<DLogProof> {
+    const w = await randomMpzLt(this.pk.q);
     const commitment = this.pk.g.modPow(w, this.pk.p);
     const challenge = challengeGenerator(commitment).mod(this.pk.q);
     const response = w.add(this.x.multiply(challenge)).mod(this.pk.q);

@@ -94,8 +94,8 @@ export class Ciphertext {
   /**
    * Reencryption with fresh randomness, which is returned.
    */
-  reencReturnR(): [Ciphertext, BigInteger] {
-    const r = randomMpzLt(this.pk.q);
+  async reencReturnR(): Promise<[Ciphertext, BigInteger]> {
+    const r = await randomMpzLt(this.pk.q);
     const newCiphertext = this.reencWithR(r);
     return [newCiphertext, r];
   }
@@ -103,8 +103,9 @@ export class Ciphertext {
   /**
    * Reencryption with fresh randomness, which is kept obscured (unlikely to be useful.)
    */
-  reenc(): Ciphertext {
-    return this.reencReturnR()[0];
+  async reenc(): Promise<Ciphertext> {
+    const c = await this.reencReturnR();
+    return c[0];
   }
 
   /**
