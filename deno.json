@@ -1,10 +1,11 @@
 {
   "name": "@psephos/elgamal",
   "description": "Package for zero-knowledge proof voting",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "license": "MIT",
   "exports": {
-    ".": "./src/index.ts"
+    ".": "./mod.ts",
+    "./utils": "./utils.ts"
   },
   "tasks": {
     "dev": "deno run --watch main.ts",

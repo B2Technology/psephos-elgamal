@@ -23,7 +23,13 @@ console.log("Building ESM module", { test, version });
 await emptyDir("./dist");
 
 await build({
-  entryPoints: ["./src/index.ts", "./src/utils/index.ts"],
+  entryPoints: [
+    "./mod.ts",
+    {
+      name: "./utils",
+      path: "./utils.ts",
+    },
+  ],
   rootTestDir: "./tests",
   outDir: "./dist",
   shims: {
@@ -35,6 +41,16 @@ await build({
     version,
     description: infoDeno.description,
     license: infoDeno.license,
+    exports: {
+      ".": {
+        import: "./esm/mod.js",
+        require: "./script/mod.js",
+      },
+      "./utils": {
+        import: "./esm/utils.js",
+        require: "./script/utils.js",
+      },
+    },
     repository: {
       type: "git",
       url: "git+https://github.com/B2Technology/psephos-elgamal.git",
