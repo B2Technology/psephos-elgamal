@@ -1,4 +1,4 @@
-import { BigInteger } from "./utils/big-Integer.ts";
+import { BigInteger } from "./utils/index.ts";
 import { KeyPair } from "./key-par.ts";
 
 export type CryptoSystemJSON = {
@@ -27,7 +27,7 @@ export class CryptoSystem {
     return KeyPair.create(this.p, this.q, this.g, _y);
   }
 
-  generateKeyPairWithPrivateKey(x: string | BigInteger) {
+  generateKeyPairWithPrivateKey(x: string | BigInteger): KeyPair {
     const sk_x = new BigInteger(x.toString());
     return KeyPair.createWithPrivateKey(this.p, this.q, this.g, sk_x);
   }

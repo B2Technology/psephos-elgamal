@@ -1,15 +1,17 @@
-import { BigInteger } from "./utils/big-Integer.ts";
+import type { ChallengeGeneratorFn } from "./types.ts";
+import type { PublicKeyJSON } from "./public-key.ts";
 import type { Ciphertext } from "./ciphertext.ts";
+import type { ZKProofJSON } from "./zk-proof.ts";
 import { Plaintext } from "./plaintext.ts";
-import { ZKProof, type ZKProofJSON } from "./zk-proof.ts";
+import { PublicKey } from "./public-key.ts";
+import { DLogProof } from "./d-log-proof.ts";
+import { ZKProof } from "./zk-proof.ts";
 import {
+  BigInteger,
   fiatshamirChallengeGenerator,
   randomMpzLt,
   sha1ToBigInt,
-} from "./utils.ts";
-import { PublicKey, type PublicKeyJSON } from "./public-key.ts";
-import { DLogProof } from "./d-log-proof.ts";
-import type { ChallengeGeneratorFn } from "./types.ts";
+} from "./utils/index.ts";
 
 export type SecretKeyJSON = {
   x: string;
@@ -27,7 +29,7 @@ export class SecretKey {
   ) {}
 
   // TODO testar
-  static createFromPublicKey(pk: PublicKey) {
+  static createFromPublicKey(pk: PublicKey): SecretKey {
     const x = randomMpzLt(pk.q);
     return new SecretKey(x, pk);
   }
@@ -98,10 +100,10 @@ export class SecretKey {
         y = m.negate().mod(this.pk.p);
       }
 
-      return new Plaintext(y.subtract(BigInteger.ONE), this.pk);
+      return new Plaintext(y.subtract(BigInteger.ONE));
     }
 
-    return new Plaintext(m, this.pk);
+    return new Plaintext(m);
   }
 
   // TODO add test (not covered)

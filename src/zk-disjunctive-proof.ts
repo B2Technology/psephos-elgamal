@@ -1,4 +1,5 @@
-import { ZKProof, type ZKProofJSON } from "./zk-proof.ts";
+import type { ZKProofJSON } from "./zk-proof.ts";
+import { ZKProof } from "./zk-proof.ts";
 
 export type ZKDisjunctiveProofJSON = {
   proofs: ZKProofJSON[];

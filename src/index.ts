@@ -16,10 +16,3 @@ export { SecretKey } from "./secret-key.ts";
 export { ZKProof } from "./zk-proof.ts";
 export { Plaintext } from "./plaintext.ts";
 export { ZKDisjunctiveProof } from "./zk-disjunctive-proof.ts";
-export {
-  disjunctiveChallengeGenerator,
-  DLogChallengeGenerator,
-  fiatshamirChallengeGenerator,
-  randomMpzLt,
-  sha1ToBigInt,
-} from "./utils.ts";

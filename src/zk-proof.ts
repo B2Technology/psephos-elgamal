@@ -1,10 +1,10 @@
-import { BigInteger } from "./utils/big-Integer.ts";
-import { randomMpzLt } from "./utils.ts";
-import { Commitment } from "./commitment.ts";
+import type { CommitmentJSON } from "./commitment.ts";
 import type { ChallengeGeneratorFn } from "./types.ts";
+import { BigInteger, randomMpzLt } from "./utils/index.ts";
+import { Commitment } from "./commitment.ts";
 
 export type ZKProofJSON = {
-  commitment: { A: string; B: string };
+  commitment: CommitmentJSON;
   challenge: string;
   response: string;
 };
@@ -60,7 +60,7 @@ export class ZKProof {
     bigG: BigInteger,
     bigH: BigInteger,
     p: BigInteger,
-    q: BigInteger,
+    _q: BigInteger,
     challengeGenerator: ChallengeGeneratorFn | null = null,
   ): boolean {
     // # check that little_g^response = A * big_g^challenge

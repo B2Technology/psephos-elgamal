@@ -1,11 +1,11 @@
-import { BigInteger } from "./utils/big-Integer.ts";
-import { PublicKey, type PublicKeyJSON } from "./public-key.ts";
-import { ZKProof } from "./zk-proof.ts";
-import { randomMpzLt } from "./utils.ts";
-import { ZKDisjunctiveProof } from "./zk-disjunctive-proof.ts";
-import { Commitment } from "./commitment.ts";
-import type { Plaintext } from "./plaintext.ts";
 import type { ChallengeGeneratorFn } from "./types.ts";
+import type { Plaintext } from "./plaintext.ts";
+import type { PublicKeyJSON } from "./public-key.ts";
+import { BigInteger, randomMpzLt } from "./utils/index.ts";
+import { ZKDisjunctiveProof } from "./zk-disjunctive-proof.ts";
+import { PublicKey } from "./public-key.ts";
+import { Commitment } from "./commitment.ts";
+import { ZKProof } from "./zk-proof.ts";
 
 export type CiphertextJSON = {
   alpha: string;
@@ -58,13 +58,7 @@ export class Ciphertext {
    * Homomorphic Multiplication of ciphertexts.
    */
   multiply(other: Ciphertext): Ciphertext {
-    // TODO rollback
-    // if (typeof other === 'number' && (other === 0 || other === 1)) {
-    //   return this;
-    // }
-
-    // @ts-ignore
-    if (other === 0 || other === 1) {
+    if (typeof other === "number" && (other === 0 || other === 1)) {
       return this;
     }
 
@@ -128,7 +122,6 @@ export class Ciphertext {
    * Generate the disjunctive encryption proof of encryption
    */
   generateEncryptionProof(
-    plaintext: Plaintext, // TODO remover
     randomness: BigInteger,
     challengeGenerator: ChallengeGeneratorFn,
   ): ZKProof {
@@ -229,7 +222,6 @@ export class Ciphertext {
 
     // # do the real proof
     const realProof = this.generateEncryptionProof(
-      plaintexts[realIndex],
       randomness,
       realChallengeGenerator,
     );

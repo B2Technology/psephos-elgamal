@@ -1,10 +1,13 @@
 import crypto from "node:crypto";
-import { BigInteger } from "./utils/big-Integer.ts";
-import { Ciphertext } from "./ciphertext.ts";
-import { fiatshamirChallengeGenerator, randomMpzLt } from "./utils.ts";
 import type { Plaintext } from "./plaintext.ts";
 import type { DLogProof } from "./d-log-proof.ts";
 import type { ZKProof } from "./zk-proof.ts";
+import { Ciphertext } from "./ciphertext.ts";
+import {
+  BigInteger,
+  fiatshamirChallengeGenerator,
+  randomMpzLt,
+} from "./utils/index.ts";
 
 export type PublicKeyJSON = {
   p: string;
@@ -88,7 +91,6 @@ export class PublicKey {
     const [ciphertext, r] = this.encryptReturnR(plaintext);
 
     return ciphertext.generateEncryptionProof(
-      plaintext,
       r,
       fiatshamirChallengeGenerator,
     );

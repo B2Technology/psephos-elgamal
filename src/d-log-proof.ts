@@ -1,4 +1,4 @@
-import { BigInteger } from "./utils/big-Integer.ts";
+import { BigInteger } from "./utils/index.ts";
 
 export type DLogProofJSON = {
   commitment: string;

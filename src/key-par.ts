@@ -1,7 +1,8 @@
-import { BigInteger } from "./utils/big-Integer.ts";
-import { randomMpzLt } from "./utils.ts";
-import { SecretKey, type SecretKeyJSON } from "./secret-key.ts";
-import { PublicKey, type PublicKeyJSON } from "./public-key.ts";
+import type { SecretKeyJSON } from "./secret-key.ts";
+import type { PublicKeyJSON } from "./public-key.ts";
+import { BigInteger, randomMpzLt } from "./utils/index.ts";
+import { SecretKey } from "./secret-key.ts";
+import { PublicKey } from "./public-key.ts";
 
 export type KeyPairJSON = {
   pk: PublicKeyJSON;
@@ -43,7 +44,9 @@ export class KeyPair {
     return new KeyPair(publicKey, secretKey);
   }
 
-  static fromData(data: { g: string; p: string; q: string; y?: string }) {
+  static fromData(
+    data: { g: string; p: string; q: string; y?: string },
+  ): KeyPair {
     return KeyPair.create(
       new BigInteger(data.p),
       new BigInteger(data.q),

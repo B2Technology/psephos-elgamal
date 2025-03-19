@@ -1,7 +1,7 @@
 import * as crypto from "node:crypto";
-import { BigInteger } from "./utils/big-Integer.ts";
-import type { Commitment } from "./commitment.ts";
-import type { ChallengeGeneratorFn } from "./types.ts";
+import type { Commitment } from "../commitment.ts";
+import type { ChallengeGeneratorFn } from "../types.ts";
+import { BigInteger } from "./big-Integer.ts";
 
 // TODO revisar e testar todos estes metodos
 

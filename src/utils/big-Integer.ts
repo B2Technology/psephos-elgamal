@@ -34,7 +34,7 @@ export class BigInteger {
         // Try to parse as decimal
         try {
           this.num = BigInt(num);
-        } catch (e) {
+        } catch (_e) {
           throw new Error(`Cannot convert "${num}" to BigInteger`);
         }
       }
@@ -43,9 +43,9 @@ export class BigInteger {
     }
   }
 
-  static readonly ZERO = new BigInteger(0);
+  static readonly ZERO: BigInteger = new BigInteger(0);
 
-  static readonly ONE = new BigInteger(1);
+  static readonly ONE: BigInteger = new BigInteger(1);
 
   /**
    * Converts a NumberLike value to bigint
