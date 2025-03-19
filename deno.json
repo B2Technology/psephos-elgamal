@@ -1,7 +1,7 @@
 {
   "name": "@psephos/psephos-elgamal",
   "description": "Package for zero-knowledge proof voting",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "license": "MIT",
   "exports": {
     ".": "./src/index.ts"
@@ -17,11 +17,6 @@
   "imports": {
     "@std/assert": "jsr:@std/assert@1"
   },
-  "test": {
-    "include": [
-      "tests/"
-    ]
-  },
   "exclude": [
     "dist/",
     ".tmp/",
@@ -35,7 +30,9 @@
     ],
     "exclude": [
       "tests",
-      "scripts"
+      "scripts",
+      ".tmp",
+      "node_modules"
     ]
   }
 }
