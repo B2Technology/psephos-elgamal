@@ -66,3 +66,22 @@ Deno.test("Plaintext::compareToString", async () => {
   // Verifica se a comparação com uma string diferente retorna falso
   assertFalse(await plaintext.compareToString("Different message"));
 });
+
+Deno.test("Plaintext::equals", async () => {
+  const message = "Hello World";
+  const plaintext = await Plaintext.fromString(message);
+
+  // Verifica se a comparação com a string original retorna verdadeiro
+  assert(await plaintext.compareToString(message));
+
+  // Verifica se a comparação com uma string diferente retorna falso
+  assertFalse(await plaintext.compareToString("Different message"));
+
+  // Compara se é igual ao valor original
+  const plaintext2 = await Plaintext.fromString(message);
+  assert(plaintext.equals(plaintext2));
+
+  // Compara se é diferente de outro valor
+  const plaintext3 = await Plaintext.fromString("Different message");
+  assertFalse(plaintext.equals(plaintext3));
+});

@@ -1,11 +1,9 @@
-import type { ChallengeGeneratorByBigIntFn } from "./types.ts";
 import type { Plaintext } from "./plaintext.ts";
 import type { DLogProof } from "./d-log-proof.ts";
-import type { ZKProof } from "./zk-proof.ts";
 import { Ciphertext } from "./ciphertext.ts";
 import {
   BigInteger,
-  fiatshamirChallengeGenerator,
+  type DLogChallengeGeneratorFn,
   randomMpzLt,
 } from "./utils/index.ts";
 
@@ -89,29 +87,27 @@ export class PublicKey {
 
   /**
    * Encrypt a plaintext, obscure the randomness and generate a proof of knowledge of the randomness
+   *
+   * Finalidade: Gerar uma prova criptográfica que demonstre que a encriptação de uma mensagem
+   * foi realizada corretamente, sem revelar a aleatoriedade utilizada no processo de encriptação.
    */
-  async generateProof(plaintext: Plaintext): Promise<ZKProof> {
-    const [ciphertext, r] = await this.encryptReturnR(plaintext);
-
-    return ciphertext.generateEncryptionProof(
-      r,
-      fiatshamirChallengeGenerator,
-    );
-  }
-
-  // verifyProof(plaintext: Plaintext, encryptProof: ZKProof): boolean {
-  //   const { A, B } = encryptProof.commitment;
+  // TODO revisar
+  // async generateProof(plaintext: Plaintext): Promise<ZKProof> {
+  //   const [ciphertext, r] = await this.encryptReturnR(plaintext);
   //
-  //   return new Ciphertext(A, B, this).verifyEncryptionProof(
-  //     plaintext,
-  //     encryptProof,
+  //   return ciphertext.generateEncryptionProof(
+  //     r,
+  //     fiatShamirChallengeGenerator,
   //   );
   // }
 
-  // TODO add test (not covered)
-  multiply(other: PublicKey): PublicKey {
-    if (typeof other === "number" && (other === 0 || other === 1)) {
-      return this;
+  multiply(other: PublicKey | number): PublicKey {
+    if (typeof other === "number") {
+      if ((other === 0 || other === 1)) {
+        return this;
+      }
+
+      throw new Error("invalid parameter type");
     }
 
     if (
@@ -133,10 +129,13 @@ export class PublicKey {
   /**
    * verify the proof of knowledge of the secret key
    * g^response = commitment * y^challenge
+   *
+   * Finalidade: Verificar se alguém que afirma possuir a chave privada correspondente à chave pública
+   * realmente a possui, sem que essa chave privada seja revelada.
    */
   async verifySkProof(
     dlogProof: DLogProof,
-    challengeGenerator: ChallengeGeneratorByBigIntFn,
+    challengeGenerator: DLogChallengeGeneratorFn,
   ): Promise<boolean> {
     const leftSide = this.g.modPow(dlogProof.response, this.p);
     const rightSide = dlogProof.commitment
@@ -148,6 +147,15 @@ export class PublicKey {
     return (
       leftSide.equals(rightSide) &&
       dlogProof.challenge.equals(expectedChallenge)
+    );
+  }
+
+  equals(other: PublicKey): boolean {
+    return (
+      this.p.equals(other.p) &&
+      this.q.equals(other.q) &&
+      this.g.equals(other.g) &&
+      this.y.equals(other.y)
     );
   }
 

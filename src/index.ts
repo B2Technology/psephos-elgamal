@@ -1,4 +1,3 @@
-export type { ChallengeGeneratorByCommitFn } from "./types.ts";
 export type { DLogProofJSON } from "./d-log-proof.ts";
 export type { KeyPairJSON } from "./key-pair.ts";
 export type { PublicKeyJSON } from "./public-key.ts";

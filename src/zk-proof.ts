@@ -1,7 +1,10 @@
 import type { CommitmentJSON } from "./commitment.ts";
-import type { ChallengeGeneratorByCommitFn } from "./types.ts";
-import { BigInteger, randomMpzLt } from "./utils/index.ts";
 import { Commitment } from "./commitment.ts";
+import {
+  BigInteger,
+  type FiatShamirChallengeGeneratorFn,
+  randomMpzLt,
+} from "./utils/index.ts";
 
 export type ZKProofJSON = {
   commitment: CommitmentJSON;
@@ -35,7 +38,7 @@ export class ZKProof {
     x: BigInteger,
     p: BigInteger,
     q: BigInteger,
-    challengeGenerator: ChallengeGeneratorByCommitFn,
+    challengeGenerator: FiatShamirChallengeGeneratorFn,
   ): Promise<ZKProof> {
     const w = await randomMpzLt(q);
 
@@ -61,7 +64,7 @@ export class ZKProof {
     bigH: BigInteger,
     p: BigInteger,
     _q: BigInteger,
-    challengeGenerator: ChallengeGeneratorByCommitFn | null = null,
+    challengeGenerator: FiatShamirChallengeGeneratorFn | null = null,
   ): Promise<boolean> {
     // # check that little_g^response = A * big_g^challenge
     const firstCheck = littleG

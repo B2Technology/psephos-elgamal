@@ -1,16 +1,12 @@
 import {
+  assert,
   assertEquals,
+  assertFalse,
   assertNotEquals,
 } from "https://deno.land/std@0.192.0/testing/asserts.ts";
 import { CryptoSystem, KeyPair, PublicKey, SecretKey } from "../src/index.ts";
 import { BigInteger } from "../src/utils/index.ts";
-
-// Parâmetros criptográficos para testes
-const CRYPTO_PARAMS = {
-  p: "16328632084933010002384055033805457329601614771185955389739167309086214800406465799038583634953752941675645562182498120750264980492381375579367675648771293800310370964745767014243638518442553823973482995267304044326777047662957480269391322789378384619428596446446984694306187644767462460965622580087564339212631775817895958409016676398975671266179637898557687317076177218843233150695157881061257053019133078545928983562221396313169622475509818442661047018436264806901023966236718367204710755935899013750306107738002364137917426595737403871114187750804346564731250609196846638183903982387884578266136503697493474682071",
-  g: "14887492224963187634282421537186040801304008017743492304481737382571933937568724473847106029915040150784031882206090286938661464458896494215273989547889201144857352611058572236578734319505128042602372864570426550855201448111746579871811249114781674309062693442442368697449970648232621880001709535143047913661432883287150003429802392229361583608686643243349727791976247247948618930423866180410558458272606627111270040091203073580238905303994472202930783207472394578498507764703191288249547659899997131166130259700604433891232298182348403175947450284433411265966789131024573629546048637848902243503970966798589660808533",
-  q: "61329566248342901292543872769978950870633559608669337131139375508370458778917",
-};
+import { CRYPTO_PARAMS } from "./stubs/contants.ts";
 
 // Valor fixo para testes determinísticos
 const FIXED_PRIVATE_KEY = "12345678901234567890";
@@ -52,6 +48,11 @@ Deno.test("KeyPair::create", async () => {
   // Verifica a relação entre as chaves: g^x mod p = y
   const calculatedY = g.modPow(keyPair.sk.x, p);
   assertEquals(calculatedY.toString(), keyPair.pk.y.toString());
+
+  // Deve gerar pares de chaves diferentes
+  const keyPair2 = await KeyPair.create(p, q, g);
+  assertFalse(keyPair.sk.equals(keyPair2.sk));
+  assertFalse(keyPair.pk.equals(keyPair2.pk));
 });
 
 Deno.test("KeyPair::createWithPrivateKey", () => {
@@ -91,25 +92,11 @@ Deno.test("KeyPair::fromJSON e toJSON", async () => {
   const recreatedKeyPair = KeyPair.fromJSON(jsonData);
 
   // Verifica se as chaves foram recriadas corretamente
-  assertEquals(
-    recreatedKeyPair.pk.p.toString(),
-    originalKeyPair.pk.p.toString(),
+  assert(
+    originalKeyPair.pk.equals(recreatedKeyPair.pk),
   );
-  assertEquals(
-    recreatedKeyPair.pk.q.toString(),
-    originalKeyPair.pk.q.toString(),
-  );
-  assertEquals(
-    recreatedKeyPair.pk.g.toString(),
-    originalKeyPair.pk.g.toString(),
-  );
-  assertEquals(
-    recreatedKeyPair.pk.y.toString(),
-    originalKeyPair.pk.y.toString(),
-  );
-  assertEquals(
-    recreatedKeyPair.sk.x.toString(),
-    originalKeyPair.sk.x.toString(),
+  assert(
+    originalKeyPair.sk.equals(recreatedKeyPair.sk),
   );
 });
 
@@ -142,5 +129,6 @@ Deno.test("KeyPair::mesma chave privada deve gerar mesma chave pública", () => 
   const keyPair2 = KeyPair.createWithPrivateKey(p, q, g, sk_x);
 
   // As chaves públicas devem ser iguais
-  assertEquals(keyPair1.pk.y.toString(), keyPair2.pk.y.toString());
+  assert(keyPair1.pk.equals(keyPair2.pk));
+  assert(keyPair1.sk.equals(keyPair2.sk));
 });

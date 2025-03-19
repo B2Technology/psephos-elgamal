@@ -28,6 +28,10 @@ export class Plaintext {
     return this.m;
   }
 
+  equals(other: Plaintext): boolean {
+    return this.m.equals(other.m);
+  }
+
   async compareToString(s: string): Promise<boolean> {
     const c = await sha1ToBigInt(s);
     return c.equals(this.m);

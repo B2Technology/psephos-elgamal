@@ -1,5 +1,3 @@
-import type { Commitment } from "../commitment.ts";
-import type { ChallengeGeneratorByCommitFn } from "../types.ts";
 import { BigInteger } from "./big-Integer.ts";
 
 // TODO revisar e testar todos estes metodos
@@ -62,39 +60,6 @@ export async function sha1ToBigInt(stringToHash: string): Promise<BigInteger> {
 
   return new BigInteger(num);
 }
-
-export function disjunctiveChallengeGenerator(
-  commitments: Commitment[],
-): Promise<BigInteger> {
-  const arrayToHash: string[] = [];
-  for (const commitment of commitments) {
-    arrayToHash.push(String(commitment.A));
-    arrayToHash.push(String(commitment.B));
-  }
-
-  const stringToHash = arrayToHash.join(",");
-  return sha1ToBigInt(stringToHash);
-}
-
-export const fiatshamirChallengeGenerator: ChallengeGeneratorByCommitFn = (
-  commitment: Commitment,
-): Promise<BigInteger> => {
-  return disjunctiveChallengeGenerator([commitment]);
-};
-
-// TODO analisar e remover caso nao usar
-export function DLogChallengeGenerator(
-  commitment: string,
-): Promise<BigInteger> {
-  return sha1ToBigInt(String(commitment));
-}
-
-// export const simpleChallengeGeneratorFn: ChallengeGeneratorByBigIntFn = (
-//   commitment: BigInteger,
-// ): Promise<BigInteger> => {
-//   //
-//   return Promise.resolve(commitment)
-// };
 
 // TODO ver para unificar com randomMpzLt
 export function getRandomBigInt(bits: number): Promise<BigInteger> {

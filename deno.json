@@ -26,8 +26,8 @@
   ],
   "coverage": {
     "thresholds": {
-      "branches": 40,
-      "lines": 40
+      "branches": 80,
+      "lines": 80
     }
   },
   "publish": {

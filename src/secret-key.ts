@@ -1,7 +1,3 @@
-import type {
-  ChallengeGeneratorByBigIntFn,
-  ChallengeGeneratorByCommitFn,
-} from "./types.ts";
 import type { PublicKeyJSON } from "./public-key.ts";
 import type { Ciphertext } from "./ciphertext.ts";
 import type { ZKProofJSON } from "./zk-proof.ts";
@@ -11,7 +7,9 @@ import { DLogProof } from "./d-log-proof.ts";
 import { ZKProof } from "./zk-proof.ts";
 import {
   BigInteger,
-  fiatshamirChallengeGenerator,
+  type DLogChallengeGeneratorFn,
+  fiatShamirChallengeGenerator,
+  type FiatShamirChallengeGeneratorFn,
   randomMpzLt,
   sha1ToBigInt,
 } from "./utils/index.ts";
@@ -31,7 +29,6 @@ export class SecretKey {
     public readonly publicKey: PublicKey,
   ) {}
 
-  // TODO testar
   static async createFromPublicKey(pk: PublicKey): Promise<SecretKey> {
     const x = await randomMpzLt(pk.q);
     return new SecretKey(x, pk);
@@ -51,17 +48,18 @@ export class SecretKey {
     return ciphertext.alpha.modPow(this.x, this.pk.p);
   }
 
-  // TODO add test (not covered)
   /**
    * challenge generator is almost certainly
    * EG_fiatshamir_challenge_generator
+   *
+   * // TODO simulater split da secret com os trustees
    */
   async decryptionFactorAndProof(
     ciphertext: Ciphertext,
-    challengeGenerator: ChallengeGeneratorByCommitFn | null = null,
+    challengeGenerator: FiatShamirChallengeGeneratorFn | null = null,
   ): Promise<[BigInteger, ZKProof]> {
     if (!challengeGenerator) {
-      challengeGenerator = fiatshamirChallengeGenerator;
+      challengeGenerator = fiatShamirChallengeGenerator;
     }
 
     const decFactor = this.decryptionFactor(ciphertext);
@@ -109,7 +107,6 @@ export class SecretKey {
     return new Plaintext(m);
   }
 
-  // TODO add test (not covered)
   /**
    * given g, y, alpha, beta/(encoded m), prove equality of discrete log
    * with Chaum Pedersen, and that discrete log is x, the secret key.
@@ -150,15 +147,16 @@ export class SecretKey {
     return [m, result];
   }
 
-  // TODO add test (not covered)
   /**
    * Generate a PoK of the secret key
    * Prover generates w, a random integer modulo q, and computes commitment = g^w mod p.
    * Verifier provides challenge modulo q.
    * Prover computes response = w + x*challenge mod q, where x is the secret key.
+   *
+   * Finalidade: Gera uma prova de conhecimento da chave secreta
    */
   async proveSk(
-    challengeGenerator: ChallengeGeneratorByBigIntFn,
+    challengeGenerator: DLogChallengeGeneratorFn,
   ): Promise<DLogProof> {
     const w = await randomMpzLt(this.pk.q);
     const commitment = this.pk.g.modPow(w, this.pk.p);
@@ -167,6 +165,12 @@ export class SecretKey {
     const response = w.add(this.x.multiply(challenge)).mod(this.pk.q);
 
     return new DLogProof(commitment, challenge, response);
+  }
+
+  equals(other: SecretKey): boolean {
+    return (
+      this.x.equals(other.x) && this.publicKey.equals(other.publicKey)
+    );
   }
 
   toJSON(): SecretKeyJSON {
