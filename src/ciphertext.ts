@@ -122,11 +122,11 @@ export class Ciphertext {
   /**
    * Generate the disjunctive encryption proof of encryption
    */
-  generateEncryptionProof(
+  async generateEncryptionProof(
     randomness: BigInteger,
     challengeGenerator: ChallengeGeneratorFn,
-  ): ZKProof {
-    const w = randomMpzLt(this.pk.q);
+  ): Promise<ZKProof> {
+    const w = await randomMpzLt(this.pk.q);
 
     // # compute A=g^w, B=y^w
     const c_A = this.pk.g.modPow(w, this.pk.p);
@@ -134,7 +134,7 @@ export class Ciphertext {
 
     // # generate challenge
     const commitment = new Commitment(c_A, c_B);
-    const challenge = challengeGenerator(commitment);
+    const challenge = await challengeGenerator(commitment);
 
     // # Compute response = w + randomness * challenge
     const response = w.add(randomness.multiply(challenge)).mod(this.pk.q);
@@ -142,12 +142,12 @@ export class Ciphertext {
     return new ZKProof(commitment, challenge, response);
   }
 
-  simulateEncryptionProof(
+  async simulateEncryptionProof(
     plaintext: Plaintext,
     challenge: BigInteger | null = null,
-  ): ZKProof {
+  ): Promise<ZKProof> {
     if (!challenge) {
-      challenge = randomMpzLt(this.pk.q);
+      challenge = await randomMpzLt(this.pk.q);
     }
 
     // # compute beta/plaintext, the completion of the DH tuple
@@ -156,7 +156,7 @@ export class Ciphertext {
       .mod(this.pk.p);
 
     // # random response, does not even need to depend on the challenge
-    const response = randomMpzLt(this.pk.q);
+    const response = await randomMpzLt(this.pk.q);
 
     // # now we compute A and B
     const c_A = this.alpha
@@ -176,12 +176,12 @@ export class Ciphertext {
     return new ZKProof(commitment, challenge, response);
   }
 
-  generateDisjunctiveEncryptionProof(
+  async generateDisjunctiveEncryptionProof(
     plaintexts: Plaintext[],
     realIndex: number,
     randomness: BigInteger,
     challengeGenerator: (commitments: Commitment[]) => BigInteger,
-  ): ZKDisjunctiveProof {
+  ): Promise<ZKDisjunctiveProof> {
     // #note how the interface is as such so that the result does not reveal which is the real proof.
     const proofs: ZKProof[] = new Array(plaintexts.length).fill(null);
 
@@ -192,12 +192,14 @@ export class Ciphertext {
     // # go through all plaintexts and simulate the ones that must be simulated.
     for (let i = 0; i < plaintexts.length; i++) {
       if (i !== realIndex) {
-        proofs[i] = this.simulateEncryptionProof(plaintexts[i]);
+        proofs[i] = await this.simulateEncryptionProof(plaintexts[i]);
       }
     }
 
     // # the function that generates the challenge
-    const realChallengeGenerator = (commitment: Commitment): BigInteger => {
+    const realChallengeGenerator = (
+      commitment: Commitment,
+    ): Promise<BigInteger> => {
       // # set up the partial real proof so we're ready to get the hash
       proofs[realIndex] = new ZKProof(
         commitment,
@@ -218,11 +220,11 @@ export class Ciphertext {
       }
 
       // # make sure we mod q, the exponent modulus
-      return realChallenge.mod(this.pk.q);
+      return Promise.resolve(realChallenge.mod(this.pk.q));
     };
 
     // # do the real proof
-    const realProof = this.generateEncryptionProof(
+    const realProof = await this.generateEncryptionProof(
       randomness,
       realChallengeGenerator,
     );

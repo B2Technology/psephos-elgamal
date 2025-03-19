@@ -11,17 +11,18 @@ const CRYPTO_PARAMS: CryptoSystemJSON = {
   q: "61329566248342901292543872769978950870633559608669337131139375508370458778917",
 };
 
-Deno.test("Elgamal::demo", () => {
+Deno.test("Elgamal::demo", async () => {
   const message = "Hello, World!";
-  const system = CryptoSystem.fromJSON(CRYPTO_PARAMS);
-  const keyPair = system.generateKeyPair();
+  // const system = CryptoSystem.fromJSON(CRYPTO_PARAMS);
+  const system = await CryptoSystem.generateSecureParams(512);
+  const keyPair = await system.generateKeyPair();
 
   console.log(keyPair);
 
-  const plaintext = Plaintext.fromString(message);
-  const encrypted = keyPair.pk.encrypt(plaintext);
+  const plaintext = await Plaintext.fromString(message);
+  const encrypted = await keyPair.pk.encrypt(plaintext);
 
   const decrypted = keyPair.sk.decrypt(encrypted);
-  assertEquals(decrypted.compareToString(message), true);
+  assertEquals(await decrypted.compareToString(message), true);
   assertEquals(plaintext.toString(), decrypted.toString());
 });

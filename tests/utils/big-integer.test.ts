@@ -66,6 +66,20 @@ Deno.test("BigInteger subtraction", () => {
   assertBigIntegerEquals(b.subtract(a), 12345n - 67890n);
 });
 
+Deno.test("BigInteger divide", () => {
+  const a = new BigInteger(67890);
+  const b = new BigInteger(12345);
+
+  // Test divide method
+  assertBigIntegerEquals(a.divide(b), 67890n / 12345n);
+  assertBigIntegerEquals(a.divide(12345), 67890n / 12345n);
+  assertBigIntegerEquals(a.divide("12345"), 67890n / 12345n);
+  assertBigIntegerEquals(a.divide(12345n), 67890n / 12345n);
+
+  // Test with negative result
+  assertBigIntegerEquals(a.divide(b.negate()), 67890n / -12345n);
+});
+
 Deno.test("BigInteger multiplication", () => {
   const a = new BigInteger(111);
   const b = new BigInteger(222);
