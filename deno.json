@@ -1,5 +1,5 @@
 {
-  "name": "@psephos/psephos-elgamal",
+  "name": "@psephos/elgamal",
   "description": "Package for zero-knowledge proof voting",
   "version": "1.0.1",
   "license": "MIT",
