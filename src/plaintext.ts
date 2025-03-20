@@ -1,5 +1,5 @@
-import type { BigInteger } from "./utils/index.ts";
-import { sha1ToBigInt } from "./utils/index.ts";
+import type {BigInteger} from "./utils/index.ts";
+import {sha1ToBigInt} from "./utils/index.ts";
 
 export class Plaintext {
   constructor(

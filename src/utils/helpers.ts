@@ -1,4 +1,6 @@
+import type {PublicKey} from "../public-key.ts";
 import { BigInteger } from "./big-Integer.ts";
+import {Plaintext} from "../plaintext.ts";
 
 // TODO revisar e testar todos estes metodos
 
@@ -122,4 +124,26 @@ export async function isProbablyPrime(
   }
 
   return true;
+}
+
+export function generate_plaintexts(
+    pk: PublicKey,
+    min: number,
+    max: number,
+): Plaintext[] {
+  let last_plaintext = BigInteger.ONE;
+
+  // an array of plaintexts
+  const plaintexts: Array<Plaintext> = [];
+
+  if (min == null) min = 0;
+
+  // questions with more than one possible answer, add to the array.
+  for (let i = 0; i <= max; i++) {
+    if (i >= min) plaintexts.push(Plaintext.fromBigInteger(last_plaintext));
+
+    last_plaintext = last_plaintext.multiply(pk.g).mod(pk.p);
+  }
+
+  return plaintexts;
 }
