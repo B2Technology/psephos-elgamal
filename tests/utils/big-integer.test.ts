@@ -272,7 +272,7 @@ Deno.test("BigInteger negate", () => {
   const positivo = new BigInteger(42);
   assertEquals(positivo.toString(), "42");
 
-  // Aplicando o método negate()
+  // Aplicando o method negate()
   const negativo = positivo.negate();
   assertEquals(negativo.toString(), "-42");
   assertEquals(negativo.toNumber(), -42);

@@ -228,7 +228,7 @@ Deno.test("Ciphertext::decrypt", async () => {
   // Obtém fator de decriptação
   const decFactor = keyPair.sk.decryptionFactor(ciphertext);
 
-  // Decripta usando o método decrypt do Ciphertext
+  // Decripta usando o method decrypt do Ciphertext
   const decrypted = ciphertext.decrypt([decFactor], keyPair.pk);
 
   // Verifica se o resultado é o plaintext original

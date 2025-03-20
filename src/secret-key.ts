@@ -51,8 +51,6 @@ export class SecretKey {
   /**
    * challenge generator is almost certainly
    * EG_fiatshamir_challenge_generator
-   *
-   * // TODO simulater split da secret com os trustees
    */
   async decryptionFactorAndProof(
     ciphertext: Ciphertext,

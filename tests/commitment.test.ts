@@ -35,7 +35,7 @@ Deno.test("Commitment::toJSON", () => {
   const commitment = new Commitment(A, B);
   const jsonOutput = commitment.toJSON();
 
-  // Verifica se o método toJSON retorna o formato esperado
+  // Verifica se o method toJSON retorna o formato esperado
   assertEquals(jsonOutput.A, "123456789");
   assertEquals(jsonOutput.B, "987654321");
 

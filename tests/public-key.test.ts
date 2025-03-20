@@ -221,19 +221,19 @@ Deno.test("PublicKey::verifySkProof", async () => {
 
 Deno.test("PublicKey::fingerprint", async () => {
   const publicKey = await createTestPublicKey();
-  const fingerprint = publicKey.fingerprint();
+  const fingerprint = await publicKey.fingerprint();
 
   // Verifica se o fingerprint foi gerado
   assertEquals(typeof fingerprint, "string");
   assertEquals(fingerprint.length > 0, true);
 
   // O mesmo objeto publicKey deve sempre gerar o mesmo fingerprint
-  const fingerprint2 = publicKey.fingerprint();
+  const fingerprint2 = await publicKey.fingerprint();
   assertEquals(fingerprint, fingerprint2);
 
   // Diferentes chaves devem gerar diferentes fingerprints
   const differentKey = await createTestPublicKey();
-  const differentFingerprint = differentKey.fingerprint();
+  const differentFingerprint = await differentKey.fingerprint();
   assertNotEquals(fingerprint, differentFingerprint);
 });
 

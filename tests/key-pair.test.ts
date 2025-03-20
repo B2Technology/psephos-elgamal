@@ -33,7 +33,7 @@ Deno.test("KeyPair::create", async () => {
   const q = new BigInteger(CRYPTO_PARAMS.q);
   const g = new BigInteger(CRYPTO_PARAMS.g);
 
-  // Cria um par de chaves usando o método estático create
+  // Cria um par de chaves usando o method estático create
   const keyPair = await KeyPair.create(p, q, g);
 
   // Verifica se o par de chaves foi criado corretamente

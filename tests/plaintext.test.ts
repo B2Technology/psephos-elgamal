@@ -23,9 +23,16 @@ Deno.test("Plaintext::fromBigInteger", () => {
   // Verifica se o BigInteger foi armazenado corretamente
   assertEquals(plaintext.m.toString(), "12345");
 
-  // Verifica se o método fromBigInteger funciona corretamente
+  // Verifica se o method fromBigInteger funciona corretamente
   const plaintextWithPK = Plaintext.fromBigInteger(bigInt);
   assertEquals(plaintextWithPK.m.toString(), "12345");
+
+  // Verifica se o method fromBigInteger recebe LikeNumber
+  const plaintex1 = Plaintext.fromBigInteger(1n);
+  assertEquals(plaintex1.toString(), "1");
+
+  const plaintex2 = Plaintext.fromBigInteger("2");
+  assertEquals(plaintex2.toString(), "2");
 });
 
 Deno.test("Plaintext::fromStrings", async () => {
@@ -44,7 +51,7 @@ Deno.test("Plaintext::toString", () => {
   const bigInt = new BigInteger("12345");
   const plaintext = Plaintext.fromBigInteger(bigInt);
 
-  // Verifica se o método toString retorna a representação correta do BigInteger
+  // Verifica se o method toString retorna a representação correta do BigInteger
   assertEquals(plaintext.toString(), "12345");
 });
 
@@ -52,7 +59,7 @@ Deno.test("Plaintext::valueOf", () => {
   const bigInt = new BigInteger("12345");
   const plaintext = Plaintext.fromBigInteger(bigInt);
 
-  // Verifica se o método toString retorna a representação correta do BigInteger
+  // Verifica se o method toString retorna a representação correta do BigInteger
   assert(bigInt.equals(plaintext.valueOf()));
 });
 

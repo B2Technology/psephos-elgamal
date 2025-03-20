@@ -1,4 +1,5 @@
-import type { BigInteger } from "./utils/index.ts";
+import type { NumberLike } from "./utils/big-Integer.ts";
+import { BigInteger } from "./utils/index.ts";
 import { sha1ToBigInt } from "./utils/index.ts";
 
 export class Plaintext {
@@ -10,8 +11,8 @@ export class Plaintext {
     return new Plaintext(await sha1ToBigInt(m));
   }
 
-  static fromBigInteger(m: BigInteger): Plaintext {
-    return new Plaintext(m);
+  static fromBigInteger(m: NumberLike): Plaintext {
+    return new Plaintext(new BigInteger(m));
   }
 
   static fromStrings(list: string[]): Promise<Plaintext[]> {

@@ -112,7 +112,7 @@ Deno.test("ZKProof::generate", async () => {
   assertEquals(proof.challenge.toString(), "555555555");
 
   // Verifica a equação da resposta: response = w + x*challenge mod q
-  // É difícil verificar isso diretamente porque w é gerado aleatoriamente dentro do método
+  // É difícil verificar isso diretamente porque w é gerado aleatoriamente dentro do method
 });
 
 Deno.test("ZKProof::verify", async () => {

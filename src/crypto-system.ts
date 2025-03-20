@@ -1,4 +1,4 @@
-import { BigInteger, getRandomBigInt, isProbablyPrime } from "./utils/index.ts";
+import { BigInteger, isProbablyPrime, randomBigInt } from "./utils/index.ts";
 import { KeyPair } from "./key-pair.ts";
 
 export type CryptoSystemJSON = {
@@ -41,14 +41,14 @@ export class CryptoSystem {
     // Gerar q primo (subgrupo)
     let q: BigInteger;
     do {
-      q = await getRandomBigInt(256); // q deve ser grande o suficiente para segurança
+      q = await randomBigInt(256); // q deve ser grande o suficiente para segurança
     } while (!(await isProbablyPrime(q)));
 
     // Gerar p primo tal que p = 2*q*k + 1 para algum k
     let p: BigInteger;
     do {
       // Começamos com um k aleatório
-      const k = await getRandomBigInt(bitLength - 256 - 1);
+      const k = await randomBigInt(bitLength - 256 - 1);
       // Calculamos p = 2*q*k + 1
       p = q.multiply(k).multiply(2).add(1);
       // Verificamos se p tem o tamanho desejado e é primo
@@ -58,9 +58,8 @@ export class CryptoSystem {
     let g: BigInteger;
     do {
       // Escolher um número aleatório h entre 2 e p-2
-      const h = new BigInteger(2).add(
-        (await getRandomBigInt(bitLength - 2)).mod(p.subtract(3)),
-      );
+      const rn = await randomBigInt(bitLength - 2);
+      const h = new BigInteger(2).add(rn.mod(p.subtract(3)));
 
       // Calcular g = h^((p-1)/q) mod p
       const exp = p.subtract(1).divide(q);
