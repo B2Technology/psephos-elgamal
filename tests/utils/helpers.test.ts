@@ -1,5 +1,5 @@
 import { assertEquals } from "https://deno.land/std@0.192.0/testing/asserts.ts";
-import { sha1Fingerprint, sha1, sha1ToBigInt } from "../../src/utils/index.ts";
+import { sha1, sha1Fingerprint, sha1ToBigInt } from "../../src/utils/index.ts";
 
 Deno.test("Helpers::sha1", async () => {
   const input = "hello";

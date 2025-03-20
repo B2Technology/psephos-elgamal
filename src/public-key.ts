@@ -4,8 +4,8 @@ import { Ciphertext } from "./ciphertext.ts";
 import {
   BigInteger,
   type DLogChallengeGeneratorFn,
-  sha1Fingerprint,
   randomMpzLt,
+  sha1Fingerprint,
 } from "./utils/index.ts";
 
 export type PublicKeyJSON = {

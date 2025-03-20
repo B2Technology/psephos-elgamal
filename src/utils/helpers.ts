@@ -52,8 +52,8 @@ export function randomBigInt(bits: number): Promise<BigInteger> {
 }
 
 export async function isProbablyPrime(
-    n: BigInteger,
-    k: number = 10,
+  n: BigInteger,
+  k: number = 10,
 ): Promise<boolean> {
   // Implementação do teste de Miller-Rabin
   // Para números pequenos, verificamos diretamente
