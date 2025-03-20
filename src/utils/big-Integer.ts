@@ -6,7 +6,13 @@
  * Uses native bigint type
  */
 
-type NumberLike = number | string | bigint | null | undefined | BigInteger;
+export type NumberLike =
+  | number
+  | string
+  | bigint
+  | null
+  | undefined
+  | BigInteger;
 
 /**
  * BigInteger class for arbitrary-precision integer arithmetic
