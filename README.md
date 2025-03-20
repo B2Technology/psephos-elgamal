@@ -15,6 +15,8 @@ e protocolos de conhecimento zero.
 
 ## Instalação
 
+A biblioteca possui suporte para ES Modules, CommonJS e Deno. Para instalar:
+
 ```bash
 # Para Deno (instalação via import_map.json)
 deno add jsr:@psephos/elgamal
@@ -23,16 +25,19 @@ deno add jsr:@psephos/elgamal
 import { CryptoSystem, Plaintext } from "jsr:@psephos/elgamal@1.0.5";
 
 # Para NPM
-npm install elgamal-ts
+npm install @psephos/elgamal
+
+# Para YARN
+yarn add @psephos/elgamal
 ```
 
 ## Uso Básico
 
 ```typescript
-import { CryptoSystem, Plaintext } from "@psephos/elgamal";
+import {CryptoSystem, Plaintext} from "@psephos/elgamal";
 import {
-  BigInteger,
-  disjunctiveChallengeGenerator,
+    BigInteger,
+    disjunctiveChallengeGenerator,
 } from "@psephos/elgamal/utils";
 
 // Criação de um sistema criptográfico
@@ -48,7 +53,7 @@ const ciphertext = await keyPair.pk.encrypt(mensagem);
 // Decriptação
 const mensagemDecriptada = keyPair.sk.decrypt(ciphertext);
 const verificacao = await mensagemDecriptada.compareToString(
-  "Mensagem secreta",
+    "Mensagem secreta",
 );
 console.log("Mensagem verificada:", verificacao); // true
 ```
@@ -82,8 +87,8 @@ Prova de conhecimento de chave privada:
 ```typescript
 const proof = await keyPair.sk.proveSk(dLogChallengeGenerator);
 const verificado = await keyPair.pk.verifySkProof(
-  proof,
-  dLogChallengeGenerator,
+    proof,
+    dLogChallengeGenerator,
 );
 ```
 
@@ -92,8 +97,8 @@ Prova de encriptação:
 ```typescript
 const [ciphertext, r] = await keyPair.pk.encryptReturnR(plaintext);
 const encProof = await ciphertext.generateEncryptionProof(
-  r,
-  fiatShamirChallengeGenerator,
+    r,
+    fiatShamirChallengeGenerator,
 );
 const verificado = ciphertext.verifyEncryptionProof(plaintext, encProof);
 ```
@@ -109,10 +114,10 @@ const [ciphertext, r] = await keyPair.pk.encryptReturnR(plaintext2);
 const plaintexts = [plaintext1, plaintext2, plaintext3];
 const realIndex = 1; // representa o index do plaintext2 no array plaintexts
 const zkProof = await ciphertext.generateDisjunctiveEncryptionProof(
-  plaintexts,
-  realIndex,
-  r,
-  disjunctiveChallengeGenerator,
+    plaintexts,
+    realIndex,
+    r,
+    disjunctiveChallengeGenerator,
 );
 ```
 
@@ -120,9 +125,9 @@ Verificação de prova disjuntiva:
 
 ```typescript
 const verificado = await ciphertext.verifyDisjunctiveEncryptionProof(
-  plaintexts,
-  zkProof,
-  disjunctiveChallengeGenerator,
+    plaintexts,
+    zkProof,
+    disjunctiveChallengeGenerator,
 );
 ```
 
@@ -146,10 +151,13 @@ const verificado = await ciphertext.verifyDisjunctiveEncryptionProof(
 
 ## Segurança
 
-Esta biblioteca implementa ElGamal com parâmetros modernos recomendados (2048+
-bits). Os desafios nas provas de conhecimento zero utilizam SHA-1 para
-compatibilidade, mas podem ser facilmente adaptados para funções de hash mais
-fortes.
+Esta biblioteca implementa ElGamal com parâmetros modernos recomendados (2048+bits).
+
+Para gerar os parâmetros de forma segura, utilize o método `generateSecureParams`:
+
+- $p: Um número primo grande (normalmente 2048 bits ou mais nos dias atuais)
+- $q: Um número primo que é divisor de p-1
+- $g: Um gerador de um subgrupo cíclico de ordem q em Z*p
 
 ## References
 
