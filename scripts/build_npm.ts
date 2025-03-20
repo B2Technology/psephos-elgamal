@@ -32,9 +32,13 @@ await build({
   ],
   rootTestDir: "./tests",
   outDir: "./dist",
+  compilerOptions: {
+    lib: ["ES2021", "DOM"],
+    target: "ES2021",
+  },
   shims: {
-    deno: true,
-    crypto: true,
+    deno: test,
+    crypto: false,
   },
   package: {
     name: infoDeno.name,
@@ -62,12 +66,22 @@ await build({
   },
   test,
   typeCheck: "both",
-  async postBuild() {
+  postBuild() {
     Deno.copyFileSync("LICENSE", "dist/LICENSE");
     Deno.copyFileSync("README.md", "dist/README.md");
 
-    if (!test) {
-      await Deno.remove("./dist/node_modules", { recursive: true });
-    }
+    const customNpmignore = `
+test_runner.js
+yarn.lock
+pnpm-lock.yaml
+/src/
+node_modules/
+  `;
+
+    Deno.writeTextFileSync("./dist/.npmignore", customNpmignore);
+
+    // if (!test) {
+    //   await Deno.remove("./dist/node_modules", { recursive: true });
+    // }
   },
 });

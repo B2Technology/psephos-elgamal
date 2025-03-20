@@ -1,7 +1,10 @@
 import type { CommitmentJSON } from "./commitment.ts";
-import type { ChallengeGeneratorFn } from "./types.ts";
-import { BigInteger, randomMpzLt } from "./utils/index.ts";
 import { Commitment } from "./commitment.ts";
+import {
+  BigInteger,
+  type FiatShamirChallengeGeneratorFn,
+  randomMpzLt,
+} from "./utils/index.ts";
 
 export type ZKProofJSON = {
   commitment: CommitmentJSON;
@@ -24,45 +27,43 @@ export class ZKProof {
     );
   }
 
-  // TODO add test (not covered)
   /**
    * generate a DDH tuple proof, where challenge generator is
    * almost certainly EG_fiatshamir_challenge_generator
    */
-  static generate(
+  static async generate(
     littleG: BigInteger,
     littleH: BigInteger,
     x: BigInteger,
     p: BigInteger,
     q: BigInteger,
-    challengeGenerator: ChallengeGeneratorFn,
-  ): ZKProof {
-    const w = randomMpzLt(q);
+    challengeGenerator: FiatShamirChallengeGeneratorFn,
+  ): Promise<ZKProof> {
+    const w = await randomMpzLt(q);
 
     // # compute A = little_g^w, B=little_h^w
     const c_A = littleG.modPow(w, p);
     const c_B = littleH.modPow(w, p);
 
     const commitment = new Commitment(c_A, c_B);
-    const challenge = challengeGenerator(commitment);
+    const challenge = await challengeGenerator(commitment);
     const response = w.add(x.multiply(challenge)).mod(q);
 
     return new ZKProof(commitment, challenge, response);
   }
 
-  // TODO add test (not covered)
   /**
    * Verify a DH tuple proof
    */
-  verify(
+  async verify(
     littleG: BigInteger,
     littleH: BigInteger,
     bigG: BigInteger,
     bigH: BigInteger,
     p: BigInteger,
     _q: BigInteger,
-    challengeGenerator: ChallengeGeneratorFn | null = null,
-  ): boolean {
+    challengeGenerator: FiatShamirChallengeGeneratorFn | null = null,
+  ): Promise<boolean> {
     // # check that little_g^response = A * big_g^challenge
     const firstCheck = littleG
       .modPow(this.response, p)
@@ -80,10 +81,20 @@ export class ZKProof {
     // # check the challenge?
     let thirdCheck = true;
     if (challengeGenerator) {
-      thirdCheck = this.challenge.equals(challengeGenerator(this.commitment));
+      thirdCheck = this.challenge.equals(
+        await challengeGenerator(this.commitment),
+      );
     }
 
     return firstCheck && secondCheck && thirdCheck;
+  }
+
+  equals(other: ZKProof): boolean {
+    return (
+      this.commitment.equals(other.commitment) &&
+      this.challenge.equals(other.challenge) &&
+      this.response.equals(other.response)
+    );
   }
 
   toJSON(): ZKProofJSON {

@@ -1,11 +1,9 @@
-import crypto from "node:crypto";
 import type { Plaintext } from "./plaintext.ts";
 import type { DLogProof } from "./d-log-proof.ts";
-import type { ZKProof } from "./zk-proof.ts";
 import { Ciphertext } from "./ciphertext.ts";
 import {
   BigInteger,
-  fiatshamirChallengeGenerator,
+  type DLogChallengeGeneratorFn,
   randomMpzLt,
 } from "./utils/index.ts";
 
@@ -71,8 +69,10 @@ export class PublicKey {
   /**
    * Encrypt a plaintext and return the randomness just generated and used.
    */
-  encryptReturnR(plaintext: Plaintext): [Ciphertext, BigInteger] {
-    const r = randomMpzLt(this.q);
+  async encryptReturnR(
+    plaintext: Plaintext,
+  ): Promise<[Ciphertext, BigInteger]> {
+    const r = await randomMpzLt(this.q);
     const ciphertext = this.encryptWithR(plaintext, r);
     return [ciphertext, r];
   }
@@ -80,35 +80,34 @@ export class PublicKey {
   /**
    * Encrypt a plaintext, obscure the randomness.
    */
-  encrypt(plaintext: Plaintext): Ciphertext {
-    return this.encryptReturnR(plaintext)[0];
+  async encrypt(plaintext: Plaintext): Promise<Ciphertext> {
+    const c = await this.encryptReturnR(plaintext);
+    return c[0];
   }
 
   /**
    * Encrypt a plaintext, obscure the randomness and generate a proof of knowledge of the randomness
+   *
+   * Finalidade: Gerar uma prova criptográfica que demonstre que a encriptação de uma mensagem
+   * foi realizada corretamente, sem revelar a aleatoriedade utilizada no processo de encriptação.
    */
-  generateProof(plaintext: Plaintext): ZKProof {
-    const [ciphertext, r] = this.encryptReturnR(plaintext);
-
-    return ciphertext.generateEncryptionProof(
-      r,
-      fiatshamirChallengeGenerator,
-    );
-  }
-
-  // verifyProof(plaintext: Plaintext, encryptProof: ZKProof): boolean {
-  //   const { A, B } = encryptProof.commitment;
+  // TODO revisar
+  // async generateProof(plaintext: Plaintext): Promise<ZKProof> {
+  //   const [ciphertext, r] = await this.encryptReturnR(plaintext);
   //
-  //   return new Ciphertext(A, B, this).verifyEncryptionProof(
-  //     plaintext,
-  //     encryptProof,
+  //   return ciphertext.generateEncryptionProof(
+  //     r,
+  //     fiatShamirChallengeGenerator,
   //   );
   // }
 
-  // TODO add test (not covered)
-  multiply(other: PublicKey): PublicKey {
-    if (typeof other === "number" && (other === 0 || other === 1)) {
-      return this;
+  multiply(other: PublicKey | number): PublicKey {
+    if (typeof other === "number") {
+      if ((other === 0 || other === 1)) {
+        return this;
+      }
+
+      throw new Error("invalid parameter type");
     }
 
     if (
@@ -127,26 +126,36 @@ export class PublicKey {
     );
   }
 
-  // TODO add test (not covered)
   /**
    * verify the proof of knowledge of the secret key
    * g^response = commitment * y^challenge
+   *
+   * Finalidade: Verificar se alguém que afirma possuir a chave privada correspondente à chave pública
+   * realmente a possui, sem que essa chave privada seja revelada.
    */
-  verifySkProof(
+  async verifySkProof(
     dlogProof: DLogProof,
-    challengeGenerator: (commitment: BigInteger) => BigInteger,
-  ): boolean {
+    challengeGenerator: DLogChallengeGeneratorFn,
+  ): Promise<boolean> {
     const leftSide = this.g.modPow(dlogProof.response, this.p);
     const rightSide = dlogProof.commitment
       .multiply(this.y.modPow(dlogProof.challenge, this.p))
       .mod(this.p);
-    const expectedChallenge = challengeGenerator(dlogProof.commitment).mod(
-      this.q,
-    );
+    const g = await challengeGenerator(dlogProof.commitment);
+    const expectedChallenge = g.mod(this.q);
 
     return (
       leftSide.equals(rightSide) &&
       dlogProof.challenge.equals(expectedChallenge)
+    );
+  }
+
+  equals(other: PublicKey): boolean {
+    return (
+      this.p.equals(other.p) &&
+      this.q.equals(other.q) &&
+      this.g.equals(other.g) &&
+      this.y.equals(other.y)
     );
   }
 
@@ -171,18 +180,20 @@ export class PublicKey {
       this.g.toString() +
       this.y.toString();
 
+    // TODO refactor to use SHA-256 (de forma compativel com web)
+    return publicKeyString;
     // Calcula o hash SHA-256 da string
-    const hash = crypto
-      .createHash("sha256")
-      .update(publicKeyString, "utf-8")
-      .digest();
-
-    // Converte para formato de fingerprint (primeiros 20 bytes em formato hexadecimal com separadores)
-    const fingerprintBytes = hash.slice(0, 20);
-    const fingerprint = Array.from(fingerprintBytes)
-      .map((byte) => byte.toString(16).padStart(2, "0").toUpperCase())
-      .join(":");
-
-    return fingerprint;
+    // const hash = crypto
+    //   .createHash("sha256")
+    //   .update(publicKeyString, "utf-8")
+    //   .digest();
+    //
+    // // Converte para formato de fingerprint (primeiros 20 bytes em formato hexadecimal com separadores)
+    // const fingerprintBytes = hash.slice(0, 20);
+    // const fingerprint = Array.from(fingerprintBytes)
+    //   .map((byte) => byte.toString(16).padStart(2, "0").toUpperCase())
+    //   .join(":");
+    //
+    // return fingerprint;
   }
 }

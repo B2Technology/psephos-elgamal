@@ -1,9 +1,13 @@
-import type { ChallengeGeneratorFn } from "./types.ts";
+import type { FiatShamirChallengeGeneratorFn } from "./utils/index.ts";
 import type { Plaintext } from "./plaintext.ts";
 import type { PublicKeyJSON } from "./public-key.ts";
-import { BigInteger, randomMpzLt } from "./utils/index.ts";
-import { ZKDisjunctiveProof } from "./zk-disjunctive-proof.ts";
 import { PublicKey } from "./public-key.ts";
+import {
+  BigInteger,
+  type DisjunctiveChallengeGeneratorFn,
+  randomMpzLt,
+} from "./utils/index.ts";
+import { ZKDisjunctiveProof } from "./zk-disjunctive-proof.ts";
 import { Commitment } from "./commitment.ts";
 import { ZKProof } from "./zk-proof.ts";
 
@@ -47,7 +51,7 @@ export class Ciphertext {
 
     if (!alpha || !beta) {
       throw new Error(
-        'Invalid Ciphertext, expected format: "${alpha},${beta}"',
+        'Formato inválido para Ciphertext! Formato esperado: "${alpha},${beta}"',
       );
     }
 
@@ -57,15 +61,19 @@ export class Ciphertext {
   /**
    * Homomorphic Multiplication of ciphertexts.
    */
-  multiply(other: Ciphertext): Ciphertext {
-    if (typeof other === "number" && (other === 0 || other === 1)) {
-      return this;
+  multiply(other: Ciphertext | number): Ciphertext {
+    if (typeof other === "number") {
+      if ((other === 0 || other === 1)) {
+        return this;
+      }
+
+      throw new Error("invalid parameter type");
     }
 
     if (this.pk !== other.pk) {
       console.info(this.pk);
       console.info(other.pk);
-      throw new Error("different PKs!");
+      throw new Error("Ciphertexts com chaves públicas diferentes");
     }
 
     return new Ciphertext(
@@ -78,6 +86,8 @@ export class Ciphertext {
   /**
    * We would do this homomorphically, except
    * that's no good when we do plaintext encoding of 1.
+   *
+   * Finalidade: reencriptar um ciphertext com um novo valor de r
    */
   reencWithR(r: BigInteger): Ciphertext {
     const alpha = this.alpha
@@ -94,8 +104,8 @@ export class Ciphertext {
   /**
    * Reencryption with fresh randomness, which is returned.
    */
-  reencReturnR(): [Ciphertext, BigInteger] {
-    const r = randomMpzLt(this.pk.q);
+  async reencReturnR(): Promise<[Ciphertext, BigInteger]> {
+    const r = await randomMpzLt(this.pk.q);
     const newCiphertext = this.reencWithR(r);
     return [newCiphertext, r];
   }
@@ -103,8 +113,9 @@ export class Ciphertext {
   /**
    * Reencryption with fresh randomness, which is kept obscured (unlikely to be useful.)
    */
-  reenc(): Ciphertext {
-    return this.reencReturnR()[0];
+  async reenc(): Promise<Ciphertext> {
+    const c = await this.reencReturnR();
+    return c[0];
   }
 
   /**
@@ -121,11 +132,11 @@ export class Ciphertext {
   /**
    * Generate the disjunctive encryption proof of encryption
    */
-  generateEncryptionProof(
+  async generateEncryptionProof(
     randomness: BigInteger,
-    challengeGenerator: ChallengeGeneratorFn,
-  ): ZKProof {
-    const w = randomMpzLt(this.pk.q);
+    challengeGenerator: FiatShamirChallengeGeneratorFn,
+  ): Promise<ZKProof> {
+    const w = await randomMpzLt(this.pk.q);
 
     // # compute A=g^w, B=y^w
     const c_A = this.pk.g.modPow(w, this.pk.p);
@@ -133,7 +144,7 @@ export class Ciphertext {
 
     // # generate challenge
     const commitment = new Commitment(c_A, c_B);
-    const challenge = challengeGenerator(commitment);
+    const challenge = await challengeGenerator(commitment);
 
     // # Compute response = w + randomness * challenge
     const response = w.add(randomness.multiply(challenge)).mod(this.pk.q);
@@ -141,12 +152,12 @@ export class Ciphertext {
     return new ZKProof(commitment, challenge, response);
   }
 
-  simulateEncryptionProof(
+  async simulateEncryptionProof(
     plaintext: Plaintext,
     challenge: BigInteger | null = null,
-  ): ZKProof {
+  ): Promise<ZKProof> {
     if (!challenge) {
-      challenge = randomMpzLt(this.pk.q);
+      challenge = await randomMpzLt(this.pk.q);
     }
 
     // # compute beta/plaintext, the completion of the DH tuple
@@ -155,7 +166,7 @@ export class Ciphertext {
       .mod(this.pk.p);
 
     // # random response, does not even need to depend on the challenge
-    const response = randomMpzLt(this.pk.q);
+    const response = await randomMpzLt(this.pk.q);
 
     // # now we compute A and B
     const c_A = this.alpha
@@ -175,12 +186,12 @@ export class Ciphertext {
     return new ZKProof(commitment, challenge, response);
   }
 
-  generateDisjunctiveEncryptionProof(
+  async generateDisjunctiveEncryptionProof(
     plaintexts: Plaintext[],
     realIndex: number,
     randomness: BigInteger,
-    challengeGenerator: (commitments: Commitment[]) => BigInteger,
-  ): ZKDisjunctiveProof {
+    challengeGenerator: DisjunctiveChallengeGeneratorFn,
+  ): Promise<ZKDisjunctiveProof> {
     // #note how the interface is as such so that the result does not reveal which is the real proof.
     const proofs: ZKProof[] = new Array(plaintexts.length).fill(null);
 
@@ -191,12 +202,14 @@ export class Ciphertext {
     // # go through all plaintexts and simulate the ones that must be simulated.
     for (let i = 0; i < plaintexts.length; i++) {
       if (i !== realIndex) {
-        proofs[i] = this.simulateEncryptionProof(plaintexts[i]);
+        proofs[i] = await this.simulateEncryptionProof(plaintexts[i]);
       }
     }
 
     // # the function that generates the challenge
-    const realChallengeGenerator = (commitment: Commitment): BigInteger => {
+    const realChallengeGenerator = async (
+      commitment: Commitment,
+    ): Promise<BigInteger> => {
       // # set up the partial real proof so we're ready to get the hash
       proofs[realIndex] = new ZKProof(
         commitment,
@@ -206,7 +219,7 @@ export class Ciphertext {
 
       // # get the commitments in a list and generate the whole disjunctive challenge
       const commitments = proofs.map((p) => p.commitment);
-      const disjunctiveChallenge = challengeGenerator(commitments);
+      const disjunctiveChallenge = await challengeGenerator(commitments);
 
       // # now we must subtract all of the other challenges from this challenge.
       let realChallenge = disjunctiveChallenge;
@@ -217,11 +230,11 @@ export class Ciphertext {
       }
 
       // # make sure we mod q, the exponent modulus
-      return realChallenge.mod(this.pk.q);
+      return Promise.resolve(realChallenge.mod(this.pk.q));
     };
 
     // # do the real proof
-    const realProof = this.generateEncryptionProof(
+    const realProof = await this.generateEncryptionProof(
       randomness,
       realChallengeGenerator,
     );
@@ -271,11 +284,11 @@ export class Ciphertext {
    *
    * overall_challenge is what all of the challenges combined should yield.
    */
-  verifyDisjunctiveEncryptionProof(
+  async verifyDisjunctiveEncryptionProof(
     plaintexts: Plaintext[],
     proof: ZKDisjunctiveProof,
-    challengeGenerator: (commitments: Commitment[]) => BigInteger,
-  ): boolean {
+    challengeGenerator: DisjunctiveChallengeGeneratorFn,
+  ): Promise<boolean> {
     if (plaintexts.length !== proof.proofs.length) {
       console.error(
         `bad number of proofs (expected ${plaintexts.length}, found ${proof.proofs.length})`,
@@ -297,7 +310,7 @@ export class Ciphertext {
 
     // # logging.info("made it past the two encryption proofs")
     // # check the overall challenge
-    const overallChallenge = challengeGenerator(
+    const overallChallenge = await challengeGenerator(
       proof.proofs.map((p) => p.commitment),
     );
 
@@ -312,22 +325,22 @@ export class Ciphertext {
    * Checks for the DDH tuple g, alpha, y, beta/plaintext
    * (PoK of secret key x.)
    */
-  verifyDecryptionProof(_plaintext: Plaintext, _proof: ZKProof): boolean {
-    // TODO remove method
-    throw new Error("Not implemented yet");
-  }
+  // verifyDecryptionProof(_plaintext: Plaintext, _proof: ZKProof): boolean {
+  //   // TODO remove method
+  //   throw new Error("Not implemented yet");
+  // }
 
   /**
    * when a ciphertext is decrypted by a dec factor, the proof needs to be checked
    */
-  verifyDecryptionFactor(
-    _decFactor: BigInteger,
-    _decProof: ZKProof,
-    _publicKey: PublicKey,
-  ): void {
-    // TODO remove method
-    throw new Error("Not implemented yet");
-  }
+  // verifyDecryptionFactor(
+  //   _decFactor: BigInteger,
+  //   _decProof: ZKProof,
+  //   _publicKey: PublicKey,
+  // ): void {
+  //   // TODO remove method
+  //   throw new Error("Not implemented yet");
+  // }
 
   /**
    * decrypt a ciphertext given a list of decryption factors (from multiple trustees)
