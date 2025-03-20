@@ -322,32 +322,10 @@ export class Ciphertext {
   }
 
   /**
-   * Checks for the DDH tuple g, alpha, y, beta/plaintext
-   * (PoK of secret key x.)
-   */
-  // verifyDecryptionProof(_plaintext: Plaintext, _proof: ZKProof): boolean {
-  //   // TODO remove method
-  //   throw new Error("Not implemented yet");
-  // }
-
-  /**
-   * when a ciphertext is decrypted by a dec factor, the proof needs to be checked
-   */
-  // verifyDecryptionFactor(
-  //   _decFactor: BigInteger,
-  //   _decProof: ZKProof,
-  //   _publicKey: PublicKey,
-  // ): void {
-  //   // TODO remove method
-  //   throw new Error("Not implemented yet");
-  // }
-
-  /**
    * decrypt a ciphertext given a list of decryption factors (from multiple trustees)
    * For now, no support for threshold
    */
   decrypt(decryptionFactors: BigInteger[], publicKey: PublicKey): BigInteger {
-    // TODO implement test
     let runningDecryption = this.beta;
     for (const decFactor of decryptionFactors) {
       runningDecryption = runningDecryption

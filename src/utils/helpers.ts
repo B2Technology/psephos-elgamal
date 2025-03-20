@@ -2,31 +2,17 @@ import type { PublicKey } from "../public-key.ts";
 import { BigInteger } from "./big-Integer.ts";
 import { Plaintext } from "../plaintext.ts";
 
-// TODO revisar e testar todos estes metodos
+// TODO criar tests unitários para essas funções
 
 /**
  * Gera bytes aleatórios criptograficamente seguros usando a Web Crypto API
  * @returns String hexadecimal dos bytes aleatórios
  * @param length
  */
-export function getRandomBytes(length: number): Promise<Uint8Array> {
+export function randomBytes(length: number): Promise<Uint8Array> {
   const bytes = new Uint8Array(length);
   globalThis.crypto.getRandomValues(bytes);
   return Promise.resolve(bytes);
-  // TODO refactor
-  // if (isDeno) {
-  //   crypto.getRandomValues(bytes);
-  // } else if (isNode) {
-  //   const nodeCrypto = await import("crypto");
-  //   const randomBytes = nodeCrypto.randomBytes(length);
-  //   bytes.set(new Uint8Array(randomBytes.buffer));
-  // } else if (isBrowser) {
-  //   crypto.getRandomValues(bytes);
-  // } else {
-  //   throw new Error("Unsupported environment");
-  // }
-  //
-  // return Promise.resolve(bytes);
 }
 
 export async function randomMpzLt(_maximum: BigInteger): Promise<BigInteger> {
@@ -36,8 +22,8 @@ export async function randomMpzLt(_maximum: BigInteger): Promise<BigInteger> {
   let res: bigint;
 
   do {
-    const randomBytes = await getRandomBytes(numBytes);
-    const randomHex = Array.from(randomBytes)
+    const rnBytes = await randomBytes(numBytes);
+    const randomHex = Array.from(rnBytes)
       .map((b) => b.toString(16).padStart(2, "0"))
       .join("");
 
@@ -47,24 +33,7 @@ export async function randomMpzLt(_maximum: BigInteger): Promise<BigInteger> {
   return new BigInteger(res);
 }
 
-// TODO ver se a funcao "utils/textToBigInt" nao faz a mesma coisa (se nao for, mover isso para dentro de utils fora da pasta elgamal)
-export async function sha1ToBigInt(stringToHash: string): Promise<BigInteger> {
-  const encoder = new TextEncoder();
-  const data = encoder.encode(stringToHash);
-
-  const hashBuffer = await globalThis.crypto.subtle.digest("SHA-1", data);
-  const hashArray = Array.from(new Uint8Array(hashBuffer));
-  const hashHex = hashArray.map((b) => b.toString(16).padStart(2, "0")).join(
-    "",
-  );
-
-  const num = BigInt(`0x${hashHex}`).toString();
-
-  return new BigInteger(num);
-}
-
-// TODO ver para unificar com randomMpzLt
-export function getRandomBigInt(bits: number): Promise<BigInteger> {
+export function randomBigInt(bits: number): Promise<BigInteger> {
   const bytes = Math.ceil(bits / 8);
   const randomBytes = new Uint8Array(bytes);
 
@@ -82,10 +51,9 @@ export function getRandomBigInt(bits: number): Promise<BigInteger> {
   return Promise.resolve(bigInt.mod(new BigInteger(2).pow(bits)).add(mask));
 }
 
-// Função para verificar se um número é provavelmente primo
 export async function isProbablyPrime(
-  n: BigInteger,
-  k: number = 10,
+    n: BigInteger,
+    k: number = 10,
 ): Promise<boolean> {
   // Implementação do teste de Miller-Rabin
   // Para números pequenos, verificamos diretamente
@@ -107,7 +75,7 @@ export async function isProbablyPrime(
     // Escolher um número aleatório a no intervalo [2, n-2]
     let a: BigInteger;
     do {
-      a = await getRandomBigInt(n.bitLength() - 1);
+      a = await randomBigInt(n.bitLength() - 1);
     } while (a.compareTo(2) < 0 || a.compareTo(nMinus1) >= 0);
 
     let x = a.modPow(d, n);
@@ -126,7 +94,36 @@ export async function isProbablyPrime(
   return true;
 }
 
-export function generate_plaintexts(
+export async function sha1(stringToHash: string): Promise<string> {
+  const encoder = new TextEncoder();
+  const data = encoder.encode(stringToHash);
+
+  const hashBuffer = await globalThis.crypto.subtle.digest("SHA-1", data);
+  const hashArray = Array.from(new Uint8Array(hashBuffer));
+  return hashArray.map((b) => b.toString(16).padStart(2, "0")).join("");
+}
+
+export async function sha1ToBigInt(stringToHash: string): Promise<BigInteger> {
+  const hashHex = await sha1(stringToHash);
+  const num = BigInt(`0x${hashHex}`).toString();
+  return new BigInteger(num);
+}
+
+export async function sha1Fingerprint(stringToHash: string): Promise<string> {
+  const encoder = new TextEncoder();
+  const data = encoder.encode(stringToHash);
+
+  // Calcula o hash SHA1 da string
+  const hashBuffer = await globalThis.crypto.subtle.digest("SHA-1", data);
+  const hashArray = Array.from(new Uint8Array(hashBuffer));
+
+  return Array.from(hashArray)
+    .map((byte) => byte.toString(16).padStart(2, "0").toUpperCase())
+    .join(":");
+}
+// Função para verificar se um número é provavelmente primo
+
+export function generatePlaintexts(
   pk: PublicKey,
   min: number,
   max: number,

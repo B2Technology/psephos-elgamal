@@ -20,7 +20,7 @@ Deno.test("CryptoSystem::construtor", () => {
 
   // Verifica se os valores foram atribuídos corretamente
   // Nota: Como os valores são privados, não conseguimos acessá-los diretamente
-  // Podemos verificar através do método toJSON
+  // Podemos verificar através do method toJSON
   const json = cryptoSystem.toJSON();
   assertEquals(json.p, CRYPTO_PARAMS.p);
   assertEquals(json.q, CRYPTO_PARAMS.q);

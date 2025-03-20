@@ -149,7 +149,7 @@ Deno.test("SecretKey::decrypt com decode", async () => {
   const decrypted = sk.decrypt(ciphertext, null, true);
 
   // O resultado pode ser diferente do original devido à codificação/decodificação
-  // Mas o importante é testar que o método não falha
+  // Mas o importante é testar que o method não falha
   assert(decrypted instanceof Plaintext);
   assert(decrypted.m instanceof BigInteger);
   assert(decrypted.equals(plaintext)); // TODO??

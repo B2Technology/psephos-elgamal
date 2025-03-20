@@ -4,6 +4,7 @@ import { Ciphertext } from "./ciphertext.ts";
 import {
   BigInteger,
   type DLogChallengeGeneratorFn,
+  sha1Fingerprint,
   randomMpzLt,
 } from "./utils/index.ts";
 
@@ -61,7 +62,6 @@ export class PublicKey {
 
     const alpha = this.g.modPow(r, this.p);
     const beta = this.y.modPow(r, this.p).multiply(m).mod(this.p);
-    // const beta = m.multiply(this.y.modPow(r, this.p)).mod(this.p);// TODO remove
 
     return new Ciphertext(alpha, beta, this);
   }
@@ -84,22 +84,6 @@ export class PublicKey {
     const c = await this.encryptReturnR(plaintext);
     return c[0];
   }
-
-  /**
-   * Encrypt a plaintext, obscure the randomness and generate a proof of knowledge of the randomness
-   *
-   * Finalidade: Gerar uma prova criptográfica que demonstre que a encriptação de uma mensagem
-   * foi realizada corretamente, sem revelar a aleatoriedade utilizada no processo de encriptação.
-   */
-  // TODO revisar
-  // async generateProof(plaintext: Plaintext): Promise<ZKProof> {
-  //   const [ciphertext, r] = await this.encryptReturnR(plaintext);
-  //
-  //   return ciphertext.generateEncryptionProof(
-  //     r,
-  //     fiatShamirChallengeGenerator,
-  //   );
-  // }
 
   multiply(other: PublicKey | number): PublicKey {
     if (typeof other === "number") {
@@ -170,30 +154,16 @@ export class PublicKey {
 
   /**
    * Gera um fingerprint único para identificar esta chave pública
-   * Usa SHA-256 para criar um hash dos componentes da chave
+   * Usa SHA1 para criar um hash dos componentes da chave
    * @returns Uma string formatada como XX:XX:XX:... contendo os primeiros 20 bytes do hash
    */
-  fingerprint(): string {
+  fingerprint(): Promise<string> {
     // Concatena as strings dos componentes da chave pública
     const publicKeyString = this.p.toString() +
       this.q.toString() +
       this.g.toString() +
       this.y.toString();
 
-    // TODO refactor to use SHA-256 (de forma compativel com web)
-    return publicKeyString;
-    // Calcula o hash SHA-256 da string
-    // const hash = crypto
-    //   .createHash("sha256")
-    //   .update(publicKeyString, "utf-8")
-    //   .digest();
-    //
-    // // Converte para formato de fingerprint (primeiros 20 bytes em formato hexadecimal com separadores)
-    // const fingerprintBytes = hash.slice(0, 20);
-    // const fingerprint = Array.from(fingerprintBytes)
-    //   .map((byte) => byte.toString(16).padStart(2, "0").toUpperCase())
-    //   .join(":");
-    //
-    // return fingerprint;
+    return sha1Fingerprint(publicKeyString);
   }
 }
