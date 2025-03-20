@@ -137,6 +137,21 @@ export class BigInteger {
   public subtract(other: NumberLike): BigInteger {
     return new BigInteger(this.num - BigInteger.toBigInt(other));
   }
+
+  /**
+   * Divides this BigInteger by another value
+   */
+  public divide(other: NumberLike): BigInteger {
+    return new BigInteger(this.num / BigInteger.toBigInt(other));
+  }
+
+  /**
+   * Returns the bit length of this BigInteger
+   */
+  public bitLength(): number {
+    return this.toString(2).length;
+  }
+
   /**
    * Calculates the modular multiplicative inverse (1/this mod m)
    */

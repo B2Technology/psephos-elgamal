@@ -1,8 +1,8 @@
 import type { SecretKeyJSON } from "./secret-key.ts";
-import type { PublicKeyJSON } from "./public-key.ts";
-import { BigInteger, randomMpzLt } from "./utils/index.ts";
 import { SecretKey } from "./secret-key.ts";
+import type { PublicKeyJSON } from "./public-key.ts";
 import { PublicKey } from "./public-key.ts";
+import { type BigInteger, randomMpzLt } from "./utils/index.ts";
 
 export type KeyPairJSON = {
   pk: PublicKeyJSON;
@@ -15,19 +15,13 @@ export class KeyPair {
     public readonly sk: SecretKey,
   ) {}
 
-  static create(
+  static async create(
     p: BigInteger,
     q: BigInteger,
     g: BigInteger,
-    y?: BigInteger,
-  ): KeyPair {
-    const sk_x = randomMpzLt(q);
-    const pk_y = y ? y : g.modPow(sk_x, p);
-
-    const publicKey = new PublicKey(p, q, g, pk_y);
-    const secretKey = new SecretKey(sk_x, publicKey);
-
-    return new KeyPair(publicKey, secretKey);
+  ): Promise<KeyPair> {
+    const sk_x = await randomMpzLt(q);
+    return KeyPair.createWithPrivateKey(p, q, g, sk_x);
   }
 
   static createWithPrivateKey(
@@ -42,17 +36,6 @@ export class KeyPair {
     const secretKey = new SecretKey(sk_x, publicKey);
 
     return new KeyPair(publicKey, secretKey);
-  }
-
-  static fromData(
-    data: { g: string; p: string; q: string; y?: string },
-  ): KeyPair {
-    return KeyPair.create(
-      new BigInteger(data.p),
-      new BigInteger(data.q),
-      new BigInteger(data.g),
-      data.y ? new BigInteger(data.y) : undefined,
-    );
   }
 
   static fromJSON(data: KeyPairJSON): KeyPair {
