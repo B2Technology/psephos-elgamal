@@ -27,7 +27,6 @@ export class ZKProof {
     );
   }
 
-  // TODO add test (not covered)
   /**
    * generate a DDH tuple proof, where challenge generator is
    * almost certainly EG_fiatshamir_challenge_generator
@@ -53,7 +52,6 @@ export class ZKProof {
     return new ZKProof(commitment, challenge, response);
   }
 
-  // TODO add test (not covered)
   /**
    * Verify a DH tuple proof
    */
@@ -89,6 +87,14 @@ export class ZKProof {
     }
 
     return firstCheck && secondCheck && thirdCheck;
+  }
+
+  equals(other: ZKProof): boolean {
+    return (
+      this.commitment.equals(other.commitment) &&
+      this.challenge.equals(other.challenge) &&
+      this.response.equals(other.response)
+    );
   }
 
   toJSON(): ZKProofJSON {

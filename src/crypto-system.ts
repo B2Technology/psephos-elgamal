@@ -14,9 +14,9 @@ export type CryptoSystemJSON = {
  */
 export class CryptoSystem {
   constructor(
-    private readonly p: BigInteger,
-    private readonly q: BigInteger,
-    private readonly g: BigInteger,
+    public readonly p: BigInteger,
+    public readonly q: BigInteger,
+    public readonly g: BigInteger,
   ) {}
 
   /**
@@ -97,21 +97,3 @@ export class CryptoSystem {
     };
   }
 }
-
-/**
- * class Cryptosystem(object):
- *     def __init__(self):
- *       self.p = None
- *       self.q = None
- *       self.g = None
- *
- *     def generate_keypair(self):
- *       """
- *       generates a keypair in the setting
- *       """
- *
- *       keypair = KeyPair()
- *       keypair.generate(self.p, self.q, self.g)
- *
- *       return keypair
- */

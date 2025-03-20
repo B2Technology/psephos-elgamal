@@ -151,6 +151,15 @@ Deno.test("Ciphertext::multiply", async () => {
   // Quando passar valor 1 deve retornar o próprio ciphertext
   const result1 = ciphertext1.multiply(1);
   assert(result1.equals(ciphertext1));
+
+  // Deve falhar ao tentar passar outro numero q nao seja 1 ou 0
+  assertThrows(
+    () => {
+      ciphertext1.multiply(2);
+    },
+    Error,
+    "invalid parameter type",
+  );
 });
 
 Deno.test("Ciphertext::reencWithR", async () => {

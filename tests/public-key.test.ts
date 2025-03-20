@@ -189,6 +189,15 @@ Deno.test("PublicKey::multiply", () => {
     Error,
     "incompatible public keys",
   );
+
+  // Deve falhar ao tentar passar outro numero q nao seja 1 ou 0
+  assertThrows(
+    () => {
+      pk1.multiply(2);
+    },
+    Error,
+    "invalid parameter type",
+  );
 });
 
 Deno.test("PublicKey::verifySkProof", async () => {

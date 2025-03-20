@@ -15,6 +15,10 @@ export class Commitment {
     return new Commitment(new BigInteger(data.A), new BigInteger(data.B));
   }
 
+  equals(other: Commitment): boolean {
+    return this.A.equals(other.A) && this.B.equals(other.B);
+  }
+
   toJSON(): CommitmentJSON {
     return {
       A: this.A.toString(),
