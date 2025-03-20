@@ -1,6 +1,6 @@
-import type {PublicKey} from "../public-key.ts";
+import type { PublicKey } from "../public-key.ts";
 import { BigInteger } from "./big-Integer.ts";
-import {Plaintext} from "../plaintext.ts";
+import { Plaintext } from "../plaintext.ts";
 
 // TODO revisar e testar todos estes metodos
 
@@ -127,9 +127,9 @@ export async function isProbablyPrime(
 }
 
 export function generate_plaintexts(
-    pk: PublicKey,
-    min: number,
-    max: number,
+  pk: PublicKey,
+  min: number,
+  max: number,
 ): Plaintext[] {
   let last_plaintext = BigInteger.ONE;
 
