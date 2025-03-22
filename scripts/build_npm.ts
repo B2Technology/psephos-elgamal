@@ -39,6 +39,8 @@ await build({
     deno: test,
     crypto: false,
   },
+  test,
+  typeCheck: "both",
   package: {
     name: infoDeno.name,
     version,
@@ -52,8 +54,6 @@ await build({
       url: "https://github.com/B2Technology/psephos-elgamal/issues",
     },
   },
-  test,
-  typeCheck: "both",
   postBuild() {
     Deno.copyFileSync("LICENSE", "dist/LICENSE");
     Deno.copyFileSync("README.md", "dist/README.md");
