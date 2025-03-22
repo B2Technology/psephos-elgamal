@@ -1,7 +1,7 @@
 const denoStr = await Deno.readTextFile("./deno.json");
 const thresholds = Object.assign(
   { branches: 0, lines: 0 },
-  JSON.parse(denoStr).coverage?.thresholds || {},
+  JSON.parse(denoStr).coverageThreshold || {},
 );
 
 const lcovData = await Deno.readTextFile("./.coverage/coverage.lcov");

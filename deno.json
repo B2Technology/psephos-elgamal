@@ -1,7 +1,7 @@
 {
   "name": "@psephos/elgamal",
   "description": "Package for zero-knowledge proof voting",
-  "version": "1.0.6",
+  "version": "1.0.7",
   "license": "MIT",
   "exports": {
     ".": "./mod.ts",
@@ -24,11 +24,9 @@
     ".tmp/",
     ".coverage/"
   ],
-  "coverage": {
-    "thresholds": {
-      "branches": 80,
-      "lines": 80
-    }
+  "coverageThreshold": {
+    "branches": 80,
+    "lines": 80
   },
   "publish": {
     "include": [

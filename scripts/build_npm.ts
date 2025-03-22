@@ -27,14 +27,13 @@ await build({
     "./mod.ts",
     {
       name: "./utils",
-      path: "./utils.ts",
+      path: "utils.ts",
     },
   ],
   rootTestDir: "./tests",
   outDir: "./dist",
   compilerOptions: {
     lib: ["ES2021", "DOM"],
-    target: "ES2021",
   },
   shims: {
     deno: test,
@@ -45,16 +44,6 @@ await build({
     version,
     description: infoDeno.description,
     license: infoDeno.license,
-    exports: {
-      ".": {
-        import: "./esm/mod.js",
-        require: "./script/mod.js",
-      },
-      "./utils": {
-        import: "./esm/utils.js",
-        require: "./script/utils.js",
-      },
-    },
     repository: {
       type: "git",
       url: "git+https://github.com/B2Technology/psephos-elgamal.git",
@@ -62,7 +51,6 @@ await build({
     bugs: {
       url: "https://github.com/B2Technology/psephos-elgamal/issues",
     },
-    private: false,
   },
   test,
   typeCheck: "both",
@@ -79,9 +67,5 @@ node_modules/
   `;
 
     Deno.writeTextFileSync("./dist/.npmignore", customNpmignore);
-
-    // if (!test) {
-    //   await Deno.remove("./dist/node_modules", { recursive: true });
-    // }
   },
 });
