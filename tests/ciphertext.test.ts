@@ -450,3 +450,22 @@ Deno.test("Ciphertext::toJSON", async () => {
   const recreated = Ciphertext.fromJSON(jsonOutput);
   assert(recreated.equals(ciphertext));
 });
+
+Deno.test("Ciphertext::toCommitmentJSON", async () => {
+  const keyPair = await system.generateKeyPair();
+  const alpha = new BigInteger("123456789");
+  const beta = new BigInteger("987654321");
+
+  const ciphertext = new Ciphertext(alpha, beta, keyPair.pk);
+
+  // Testa a serialização para JSON
+  const jsonOutput = ciphertext.toCommitmentJSON();
+
+  // Verifica a estrutura do JSON
+  assertEquals(typeof jsonOutput.alpha, "string");
+  assertEquals(typeof jsonOutput.beta, "string");
+
+  // Verifica os valores específicos
+  assertEquals(jsonOutput.alpha, "123456789");
+  assertEquals(jsonOutput.beta, "987654321");
+});

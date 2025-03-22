@@ -17,6 +17,11 @@ export type CiphertextJSON = {
   pk: PublicKeyJSON;
 };
 
+export type CiphertextCommitmentJSON = {
+  alpha: string;
+  beta: string;
+};
+
 export class Ciphertext {
   constructor(
     public readonly alpha: BigInteger,
@@ -345,6 +350,13 @@ export class Ciphertext {
       alpha: this.alpha.toString(),
       beta: this.beta.toString(),
       pk: this.pk.toJSON(),
+    };
+  }
+
+  toCommitmentJSON(): CiphertextCommitmentJSON {
+    return {
+      alpha: this.alpha.toString(),
+      beta: this.beta.toString(),
     };
   }
 }
