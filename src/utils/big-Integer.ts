@@ -61,6 +61,8 @@ export class BigInteger {
       return 0n;
     } else if (value instanceof BigInteger) {
       return value.num;
+    } else if (typeof value === "object" && "num" in value) {
+      return (value as unknown as { num: bigint }).num;
     } else if (typeof value === "bigint") {
       return value;
     } else if (typeof value === "number") {

@@ -18,9 +18,13 @@ export class ZKDisjunctiveProof {
     return new ZKDisjunctiveProof(proofs);
   }
 
+  toProofsJSON(): ZKProofJSON[] {
+    return this.proofs.map((p) => p.toJSON());
+  }
+
   toJSON(): ZKDisjunctiveProofJSON {
     return {
-      proofs: this.proofs.map((p) => p.toJSON()),
+      proofs: this.toProofsJSON(),
     };
   }
 }

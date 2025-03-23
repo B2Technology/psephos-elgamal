@@ -1,12 +1,12 @@
-# Psephos - Elgamal
+# Psephos - El Gamal
 
-Uma implementação TypeScript moderna do sistema de criptografia ElGamal,
+Uma implementação TypeScript moderna do sistema de criptografia El Gamal,
 otimizada para Deno, NodeJS e web. Com foco em aplicações de votação eletrônica
 e protocolos de conhecimento zero.
 
 ## Características
 
-- Implementação completa do sistema de criptografia ElGamal
+- Implementação completa do sistema de criptografia El Gamal
 - Provas de conhecimento zero para verificar integridade
 - Operações homomórficas para aplicações de contagem
 - Suporte para Deno e ambientes modernos de JavaScript/TypeScript
@@ -60,7 +60,7 @@ console.log("Mensagem verificada:", verificacao); // true
 
 ## Funcionalidades Principais
 
-### Criptografia ElGamal
+### Criptografia El Gamal
 
 Encriptação com randomness específico
 
