@@ -3,7 +3,7 @@ import {
   assertEquals,
   assertFalse,
   assertNotEquals,
-} from "https://deno.land/std@0.192.0/testing/asserts.ts";
+} from "jsr:@std/assert";
 import {
   CryptoSystem,
   DLogProof,

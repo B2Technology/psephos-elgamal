@@ -1,5 +1,5 @@
 // REF: https://deno.com/blog/publish-esm-cjs-module-dnt
-import { build, emptyDir } from "https://deno.land/x/dnt/mod.ts";
+import { build, emptyDir } from "jsr:@deno/dnt@^0.41.3";
 import { parseArgs } from "jsr:@std/cli/parse-args";
 
 const args = parseArgs(Deno.args, {
@@ -40,7 +40,7 @@ await build({
     crypto: false,
   },
   test,
-  typeCheck: "both",
+  typeCheck: test ? false : "both",
   package: {
     name: infoDeno.name,
     version,

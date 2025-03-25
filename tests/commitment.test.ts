@@ -1,7 +1,4 @@
-import {
-  assertEquals,
-  assertNotEquals,
-} from "https://deno.land/std@0.192.0/testing/asserts.ts";
+import { assertEquals, assertNotEquals } from "jsr:@std/assert";
 import { BigInteger } from "../src/utils/index.ts";
 import { Commitment, type CommitmentJSON } from "../src/index.ts";
 

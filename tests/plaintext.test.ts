@@ -1,8 +1,4 @@
-import {
-  assert,
-  assertEquals,
-  assertFalse,
-} from "https://deno.land/std@0.192.0/testing/asserts.ts";
+import { assert, assertEquals, assertFalse } from "jsr:@std/assert";
 import { BigInteger, sha1ToBigInt } from "../src/utils/index.ts";
 import { Plaintext } from "../src/index.ts";
 

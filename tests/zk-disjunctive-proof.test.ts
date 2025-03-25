@@ -1,8 +1,4 @@
-import {
-  assert,
-  assertEquals,
-  assertThrows,
-} from "https://deno.land/std@0.192.0/testing/asserts.ts";
+import { assert, assertEquals, assertThrows } from "jsr:@std/assert";
 import {
   Commitment,
   CryptoSystem,

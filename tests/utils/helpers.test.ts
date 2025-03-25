@@ -1,4 +1,4 @@
-import { assertEquals } from "https://deno.land/std@0.192.0/testing/asserts.ts";
+import { assertEquals } from "jsr:@std/assert";
 import { sha1, sha1Fingerprint, sha1ToBigInt } from "../../src/utils/index.ts";
 
 Deno.test("Helpers::sha1", async () => {

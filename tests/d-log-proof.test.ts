@@ -1,4 +1,4 @@
-import { assertEquals } from "https://deno.land/std@0.192.0/testing/asserts.ts";
+import { assertEquals } from "jsr:@std/assert";
 import { BigInteger } from "../src/utils/index.ts";
 import { DLogProof } from "../src/index.ts";
 

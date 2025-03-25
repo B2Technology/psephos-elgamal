@@ -23,23 +23,31 @@ export type CiphertextCommitmentJSON = {
 };
 
 export class Ciphertext {
+  get pk(): PublicKey {
+    if (!this._pk) {
+      throw new Error("Ciphertext: PublicKey is not defined");
+    }
+
+    return this._pk;
+  }
+
   constructor(
     public readonly alpha: BigInteger,
     public readonly beta: BigInteger,
-    public readonly pk: PublicKey,
+    public readonly _pk?: PublicKey,
   ) {}
 
   static fromJSON(json: CiphertextJSON): Ciphertext {
     return new Ciphertext(
       new BigInteger(json.alpha),
       new BigInteger(json.beta),
-      PublicKey.fromJSON(json.pk),
+      json.pk ? PublicKey.fromJSON(json.pk) : undefined,
     );
   }
 
   static fromData(
     data: { alpha: string; beta: string },
-    pk: PublicKey,
+    pk?: PublicKey,
   ): Ciphertext {
     return new Ciphertext(
       new BigInteger(data.alpha),
@@ -51,7 +59,7 @@ export class Ciphertext {
   /**
    * expects: "${alpha},${beta}"
    */
-  static fromString(str: string, pk: PublicKey): Ciphertext {
+  static fromString(str: string, pk?: PublicKey): Ciphertext {
     const [alpha, beta] = str.split(",").map((s) => new BigInteger(s));
 
     if (!alpha || !beta) {

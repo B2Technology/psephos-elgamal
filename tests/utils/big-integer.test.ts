@@ -1,7 +1,4 @@
-import {
-  assertEquals,
-  assertThrows,
-} from "https://deno.land/std@0.192.0/testing/asserts.ts";
+import { assertEquals, assertThrows } from "jsr:@std/assert";
 import { BigInteger } from "../../src/utils/index.ts";
 
 // Helper function to compare BigInteger results with native bigint

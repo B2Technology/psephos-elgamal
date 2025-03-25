@@ -4,7 +4,7 @@ import {
   assertFalse,
   assertNotEquals,
   assertThrows,
-} from "https://deno.land/std@0.192.0/testing/asserts.ts";
+} from "jsr:@std/assert";
 import {
   Ciphertext,
   Commitment,
